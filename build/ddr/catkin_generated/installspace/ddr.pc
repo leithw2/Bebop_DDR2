@@ -1,0 +1,8 @@
+prefix=/home/laptop/catkin_ws/install
+
+Name: ddr
+Description: Description of ddr
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,0 +1,6 @@
+Symlinking /home/laptop/catkin_ws/devel/lib/rotors_gazebo/hovering_example
+Symlinking /home/laptop/catkin_ws/devel/lib/rotors_gazebo/waypoint_publisher
+Symlinking /home/laptop/catkin_ws/devel/lib/rotors_gazebo/waypoint_publisher_file
+Symlinking /home/laptop/catkin_ws/devel/lib/pkgconfig/rotors_gazebo.pc
+Symlinking /home/laptop/catkin_ws/devel/share/rotors_gazebo/cmake/rotors_gazeboConfig.cmake
+Symlinking /home/laptop/catkin_ws/devel/share/rotors_gazebo/cmake/rotors_gazeboConfig-version.cmake

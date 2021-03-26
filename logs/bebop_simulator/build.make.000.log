@@ -1,0 +1,146 @@
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target nav_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_py[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_eus[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target actionlib_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_cpp[0m
+[  0%] Built target rosgraph_msgs_generate_messages_py
+[  0%] Built target rosgraph_msgs_generate_messages_lisp
+[  0%] Built target nav_msgs_generate_messages_py
+[  0%] Built target rosgraph_msgs_generate_messages_nodejs
+[  0%] Built target rosgraph_msgs_generate_messages_cpp
+[  0%] Built target roscpp_generate_messages_eus
+[  0%] Built target roscpp_generate_messages_py
+[  0%] Built target roscpp_generate_messages_nodejs
+[  0%] Built target roscpp_generate_messages_lisp
+[  0%] Built target actionlib_msgs_generate_messages_py
+[  0%] Built target roscpp_generate_messages_cpp
+[35m[1mScanning dependencies of target mav_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target actionlib_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target actionlib_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target actionlib_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target trajectory_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target mav_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target gazebo_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_eus[0m
+[  0%] Built target mav_msgs_generate_messages_lisp
+[35m[1mScanning dependencies of target gazebo_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_cpp[0m
+[  0%] Built target actionlib_msgs_generate_messages_lisp
+[  0%] Built target trajectory_msgs_generate_messages_cpp
+[  0%] Built target actionlib_msgs_generate_messages_eus
+[  0%] Built target actionlib_msgs_generate_messages_nodejs
+[  0%] Built target mav_msgs_generate_messages_py
+[35m[1mScanning dependencies of target trajectory_msgs_generate_messages_eus[0m
+[  0%] Built target gazebo_msgs_generate_messages_eus
+[  0%] Built target gazebo_msgs_generate_messages_py
+[  0%] Built target sensor_msgs_generate_messages_nodejs
+[35m[1mScanning dependencies of target gazebo_msgs_generate_messages_cpp[0m
+[  0%] Built target rosgraph_msgs_generate_messages_eus
+[  0%] Built target geometry_msgs_generate_messages_cpp
+[35m[1mScanning dependencies of target std_msgs_generate_messages_lisp[0m
+[  0%] Built target trajectory_msgs_generate_messages_eus
+[35m[1mScanning dependencies of target gazebo_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target std_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target std_srvs_generate_messages_lisp[0m
+[  0%] Built target gazebo_msgs_generate_messages_cpp
+[35m[1mScanning dependencies of target gazebo_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target mav_msgs_generate_messages_eus[0m
+[  0%] Built target geometry_msgs_generate_messages_py
+[  0%] Built target std_msgs_generate_messages_lisp
+[35m[1mScanning dependencies of target std_srvs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target trajectory_msgs_generate_messages_py[0m
+[  0%] Built target gazebo_msgs_generate_messages_nodejs
+[  0%] Built target std_srvs_generate_messages_lisp
+[  0%] Built target gazebo_msgs_generate_messages_lisp
+[  0%] Built target mav_msgs_generate_messages_eus
+[  0%] Built target geometry_msgs_generate_messages_lisp
+[  0%] Built target std_msgs_generate_messages_nodejs
+[  0%] Built target sensor_msgs_generate_messages_lisp
+[  0%] Built target std_srvs_generate_messages_eus
+[  0%] Built target trajectory_msgs_generate_messages_py
+[35m[1mScanning dependencies of target nav_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target std_srvs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target trajectory_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target trajectory_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_cpp[0m
+[  0%] Built target nav_msgs_generate_messages_eus
+[35m[1mScanning dependencies of target std_srvs_generate_messages_py[0m
+[35m[1mScanning dependencies of target std_srvs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target std_msgs_generate_messages_eus[0m
+[  0%] Built target geometry_msgs_generate_messages_eus
+[  0%] Built target trajectory_msgs_generate_messages_lisp
+[  0%] Built target sensor_msgs_generate_messages_py
+[  0%] Built target trajectory_msgs_generate_messages_nodejs
+[  0%] Built target std_srvs_generate_messages_cpp
+[  0%] Built target sensor_msgs_generate_messages_cpp
+[35m[1mScanning dependencies of target mav_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target mav_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target nav_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target actionlib_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target nav_msgs_generate_messages_lisp[0m
+[  0%] Built target std_srvs_generate_messages_py
+[35m[1mScanning dependencies of target std_msgs_generate_messages_cpp[0m
+[  0%] Built target std_srvs_generate_messages_nodejs
+[  0%] Built target geometry_msgs_generate_messages_nodejs
+[  0%] Built target std_msgs_generate_messages_eus
+[  0%] Built target mav_msgs_generate_messages_cpp
+[  0%] Built target mav_msgs_generate_messages_nodejs
+[  0%] Built target nav_msgs_generate_messages_cpp
+[35m[1mScanning dependencies of target nav_msgs_generate_messages_nodejs[0m
+[  0%] Built target actionlib_msgs_generate_messages_cpp
+[  0%] Built target std_msgs_generate_messages_cpp
+[  0%] Built target sensor_msgs_generate_messages_eus
+[35m[1mScanning dependencies of target std_msgs_generate_messages_py[0m
+[  0%] Built target nav_msgs_generate_messages_lisp
+[  0%] Built target nav_msgs_generate_messages_nodejs
+[  0%] Built target std_msgs_generate_messages_py
+[35m[1mScanning dependencies of target extendedKalmanFilter[0m
+[35m[1mScanning dependencies of target position_controller_with_bebop[0m
+[35m[1mScanning dependencies of target quaternion_to_rpy[0m
+[35m[1mScanning dependencies of target position_controller[0m
+[35m[1mScanning dependencies of target waypoint_example[0m
+[35m[1mScanning dependencies of target hovering_example[0m
+[35m[1mScanning dependencies of target waypoint_filter[0m
+[  5%] [32mBuilding CXX object CMakeFiles/position_controller_with_bebop.dir/src/library/position_controller_with_bebop.cpp.o[0m
+[ 11%] [32mBuilding CXX object CMakeFiles/waypoint_filter.dir/src/library/waypoint_filter.cpp.o[0m
+[ 16%] [32mBuilding CXX object CMakeFiles/quaternion_to_rpy.dir/src/nodes/quaternion_to_rpy.cpp.o[0m
+[ 22%] [32mBuilding CXX object CMakeFiles/extendedKalmanFilter.dir/src/library/extendedKalmanFilter.cpp.o[0m
+[ 27%] [32mBuilding CXX object CMakeFiles/hovering_example.dir/src/nodes/hovering_example.cpp.o[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/waypoint_example.dir/src/nodes/waypoint_example.cpp.o[0m
+[ 38%] [32mBuilding CXX object CMakeFiles/position_controller.dir/src/library/position_controller.cpp.o[0m
+[ 44%] [32m[1mLinking CXX shared library /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libwaypoint_filter.so[0m
+[ 44%] Built target waypoint_filter
+[ 50%] [32m[1mLinking CXX executable /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/quaternion_to_rpy[0m
+[ 50%] Built target quaternion_to_rpy
+[ 55%] [32m[1mLinking CXX executable /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/waypoint_example[0m
+[ 61%] [32m[1mLinking CXX executable /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/hovering_example[0m
+[ 66%] [32m[1mLinking CXX shared library /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libposition_controller_with_bebop.so[0m
+[ 66%] Built target position_controller_with_bebop
+[ 66%] Built target hovering_example
+[ 66%] Built target waypoint_example
+[ 72%] [32m[1mLinking CXX shared library /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libposition_controller.so[0m
+[ 72%] Built target position_controller
+[ 77%] [32m[1mLinking CXX shared library /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libextendedKalmanFilter.so[0m
+[ 77%] Built target extendedKalmanFilter
+[35m[1mScanning dependencies of target position_controller_with_bebop_node[0m
+[35m[1mScanning dependencies of target position_controller_node[0m
+[ 83%] [32mBuilding CXX object CMakeFiles/position_controller_with_bebop_node.dir/src/nodes/position_controller_with_bebop_node.cpp.o[0m
+[ 88%] [32mBuilding CXX object CMakeFiles/position_controller_node.dir/src/nodes/position_controller_node.cpp.o[0m
+[ 94%] [32m[1mLinking CXX executable /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/position_controller_with_bebop_node[0m
+[100%] [32m[1mLinking CXX executable /home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/position_controller_node[0m
+[100%] Built target position_controller_with_bebop_node
+[100%] Built target position_controller_node

@@ -1,0 +1,1 @@
+/home/laptop/catkin_ws/devel/.private/ddr/share/ddr/cmake/ddrConfig-version.cmake

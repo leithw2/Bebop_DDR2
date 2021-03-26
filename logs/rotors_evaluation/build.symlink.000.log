@@ -1,0 +1,4 @@
+Symlinking /home/laptop/catkin_ws/devel/lib/python2.7/dist-packages/rosbag_tools/__init__.py
+Symlinking /home/laptop/catkin_ws/devel/lib/pkgconfig/rotors_evaluation.pc
+Symlinking /home/laptop/catkin_ws/devel/share/rotors_evaluation/cmake/rotors_evaluationConfig-version.cmake
+Symlinking /home/laptop/catkin_ws/devel/share/rotors_evaluation/cmake/rotors_evaluationConfig.cmake

@@ -1,0 +1,5 @@
+ddr
+/home/laptop/catkin_ws/devel/.private/ddr/cmake.lock /home/laptop/catkin_ws/devel/./cmake.lock
+/home/laptop/catkin_ws/devel/.private/ddr/lib/pkgconfig/ddr.pc /home/laptop/catkin_ws/devel/lib/pkgconfig/ddr.pc
+/home/laptop/catkin_ws/devel/.private/ddr/share/ddr/cmake/ddrConfig-version.cmake /home/laptop/catkin_ws/devel/share/ddr/cmake/ddrConfig-version.cmake
+/home/laptop/catkin_ws/devel/.private/ddr/share/ddr/cmake/ddrConfig.cmake /home/laptop/catkin_ws/devel/share/ddr/cmake/ddrConfig.cmake

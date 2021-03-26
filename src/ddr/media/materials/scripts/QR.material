@@ -1,0 +1,15 @@
+material vrc/QRCode
+{
+  receive_shadows on
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture grass_dry.png
+	scale 1 1
+      }
+    }
+  }
+}
