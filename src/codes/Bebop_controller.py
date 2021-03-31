@@ -5,7 +5,7 @@ import matplotlib as mpl
 import rospy
 import cv2
 import numpy
-#from cv2 import aruco
+from cv2 import aruco
 from cv_bridge import CvBridge, CvBridgeError
 import std_msgs.msg
 from scipy.spatial.transform import Rotation as R

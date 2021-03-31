@@ -1,0 +1,17 @@
+material map/diffuse
+{
+  receive_shadows on
+  technique
+  {
+    pass
+    {
+      
+      
+      texture_unit
+      {
+        texture bake_texture2.png
+	
+      }
+    }
+  }
+}

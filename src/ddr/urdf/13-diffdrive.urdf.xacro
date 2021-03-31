@@ -133,7 +133,7 @@
 
    <transmission name="camera_trans">
     <type>transmission_interface/SimpleTransmission</type>
-    <actuator name="$camera_motor">
+    <actuator name="camera_motor">
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
     <joint name="camera_joint">
