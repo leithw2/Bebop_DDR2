@@ -27,7 +27,7 @@
     <arg name="enable_plots" default="false"/>
     <arg name="enable_imu" default="true"/>
 
-    
+
   <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find bebop_simulator)/models"/>
   <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find bebop_simulator)/models"/>
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -58,12 +58,12 @@
     </include>
 
     <!-- Launch the controller  -->
-    <node name="position_controller_node" pkg="bebop_simulator" type="position_controller_node" output="screen"> 
+    <node name="position_controller_node" pkg="bebop_simulator" type="position_controller_node" output="screen">
       <rosparam command="load" file="$(find bebop_simulator)/resource/controller_bebop.yaml" />
       <rosparam command="load" file="$(find bebop_simulator)/resource/bebop.yaml" />
       <rosparam command="load" file="$(find bebop_simulator)/resource/EKF_matrix.yaml" />
       <rosparam command="load" file="$(find bebop_simulator)/resource/waypoint_filter.yaml" />
-	
+
       <param name="use_sim_time" value="$(arg use_sim_time)" />
       <param name="csvFilesStoring" value="$(arg csvFilesStoring)"/>
       <param name="csvFilesStoringTime" value="$(arg csvFilesStoringTime)"/>
@@ -86,7 +86,7 @@
 
     <!-- Launch the trajectory generator -->
    <group ns="$(arg name)">
-       <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints.txt"/>   
+       <node name="waypoint_example" pkg="bebop_simulator" type="waypoint_example" output="screen" args="$(find bebop_simulator)/resource/waypoints.txt"/>
     </group>
 
     <!-- Launch the trajectory plot -->
@@ -119,7 +119,7 @@
     <!-- Launch the state errors plot -->
     <node name="state_errors_position_plot_ekf" pkg="rqt_plot" type="rqt_plot" args="--clear-config /$(arg name)/stateErrors/pose/pose/position" output="screen" />
     <node name="state_errors_velocity_plot_ekf" pkg="rqt_plot" type="rqt_plot" args="--clear-config /$(arg name)/stateErrors/twist/twist/linear" output="screen" />
-    
+
     <!-- Launch the position and velocity errors plot -->
     <node name="position_errors_plot" pkg="rqt_plot" type="rqt_plot" args="--clear-config /$(arg name)/positionAndVelocityErrors/pose/pose/position" output="screen" />
     <node name="velocity_errors_plot" pkg="rqt_plot" type="rqt_plot" args="--clear-config /$(arg name)/positionAndVelocityErrors/twist/twist/linear" output="screen" />
@@ -139,7 +139,9 @@
 
    <node name="bebop_controller_spawner" pkg="controller_manager" type="spawner"
     args="
-	  bebop/camera_controller
+
 	  bebop/joint_state_controller
           --shutdown-timeout 3"/>
+
+    <!--bebop/camera_controller removed for testing-->
 </launch>
