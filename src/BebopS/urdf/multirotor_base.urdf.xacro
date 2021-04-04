@@ -50,7 +50,7 @@
       <child link="imu_link" />
       <limit upper="0" lower="0" effort="0" velocity="0" />
     </joint>
-    
+
     <!-- attach multirotor_base_plugin to the base_link -->
     <gazebo>
       <plugin filename="librotors_gazebo_multirotor_base_plugin.so" name="rosbag">
@@ -74,7 +74,7 @@
 
     </joint>
     <!-- TODO(ff): not currently set because it's not yet supported -->
-    <!-- <gazebo reference="rotor_${motor_number}_joint"> <axis> <xyz>0 0 1</xyz> 
+    <!-- <gazebo reference="rotor_${motor_number}_joint"> <axis> <xyz>0 0 1</xyz>
       <limit> <velocity> ${max_rot_velocity} </velocity> </limit> </axis> </gazebo> -->
     <link name="rotor_${motor_number}">
       <inertial>
@@ -110,7 +110,7 @@
         <motorNumber>${motor_number}</motorNumber>
         <rotorDragCoefficient>${rotor_drag_coefficient}</rotorDragCoefficient>
         <rollingMomentCoefficient>${rolling_moment_coefficient}</rollingMomentCoefficient>
-        <motorSpeedPubTopic>${robot_namespace}/motor_vel/${motor_number}</motorSpeedPubTopic> 
+        <motorSpeedPubTopic>${robot_namespace}/motor_vel/${motor_number}</motorSpeedPubTopic>
         <rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>
       </plugin>
     </gazebo>
@@ -122,11 +122,11 @@
   </xacro:macro>
 
   <!-- Camera macro. Adds a box representing a camera below the UAV
-  
+
   @param camera_link Length of the camera box
-  @param camera_mass Mass of the camera 
+  @param camera_mass Mass of the camera
   @param parent Parent link on which the camera will be fixed
-  @param *origin Block argument defining the origin of the camera with 
+  @param *origin Block argument defining the origin of the camera with
   reference to the parent link.
   @param *inertia Block argument defining camera inertia.
   -->
@@ -191,7 +191,7 @@
         <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
           <baseline>0.2</baseline>
           <alwaysOn>true</alwaysOn>
-          
+
 	  <! Keep this zero, update_rate in the parent <sensor> tag
             will control the frame rate. >
           <updateRate>0.0</updateRate>
@@ -223,7 +223,7 @@
 <gazebo reference="camera_box">
       <sensor type="camera" name="camera1">
         <update_rate>30.0</update_rate>
-        
+
         <camera name="head">
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
