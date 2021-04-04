@@ -7,7 +7,7 @@
   <xacro:property name="polelen" value="0.2" />
   <xacro:property name="bodylen" value="0.1" />
   <xacro:property name="baselen" value="0.4" />
-  <xacro:property name="wheeldiam" value="0.1" />
+  <xacro:property name="wheeldiam" value="0.05" />
   <xacro:property name="pi" value="3.1415" />
   <xacro:property name="camera_link" value=".01" />
 
@@ -34,13 +34,13 @@
   <link name="base_link">
     <visual>
       <geometry>
-        <box size="${wheeldiam} ${wheeldiam} ${wheeldiam/2}"/>
+        <box size="${bodylen} ${bodylen} ${bodylen/2}"/>
       </geometry>
       <material name="blue"/>
     </visual>
     <collision>
       <geometry>
-        <box size="${wheeldiam} ${wheeldiam} ${wheeldiam/2}"/>
+        <box size="${bodylen} ${bodylen} ${bodylen/2}"/>
       </geometry>
     </collision>
     <xacro:default_inertial mass="50"/>
@@ -52,14 +52,14 @@
       <visual>
         <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
         <geometry>
-          <box size="${wheeldiam*0.66} ${wheeldiam*0.66} 0.05"/>
+          <cylinder radius="${wheeldiam}" length="0.02"/>
         </geometry>
 
       </visual>
       <collision>
         <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
         <geometry>
-          <cylinder radius="${wheeldiam/2}" length="0.1"/>
+          <cylinder radius="${wheeldiam}" length="0.02"/>
         </geometry>
       </collision>
       <xacro:default_inertial mass="50"/>
@@ -144,7 +144,7 @@
   <!-- Gazebo plugin for ROS Control -->
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      
+
     </plugin>
   </gazebo>
 
@@ -168,17 +168,17 @@
             <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
               <baseline>0.2</baseline>
               <alwaysOn>true</alwaysOn>
-          
+
 	      <!-- Keep this zero, update_rate in the parent <sensor> tag
 		    will control the frame rate. -->
 	      <updateRate>0.0</updateRate>
 	      <cameraName>rrbot/camera</cameraName>
-	      <imageTopicName>rrbot/camera/color/image_raw</imageTopicName>
-	      <cameraInfoTopicName>rrbot/camera/color/camera_info</cameraInfoTopicName>
-              <depthImageTopicName>rrbot/camera/depth/image_raw</depthImageTopicName>
-	      <depthImageCameraInfoTopicName>rrbot/camera/depth/camera_info</depthImageCameraInfoTopicName>
-	      <pointCloudTopicName>rrbot/camera/depth/points</pointCloudTopicName>
-	      <frameName>base_correct</frameName>
+	      <imageTopicName>/rrbot/camera/color/image_raw</imageTopicName>
+	      <cameraInfoTopicName>/rrbot/camera/color/camera_info</cameraInfoTopicName>
+              <depthImageTopicName>/rrbot/camera/depth/image_raw</depthImageTopicName>
+	      <depthImageCameraInfoTopicName>/rrbot/camera/depth/camera_info</depthImageCameraInfoTopicName>
+	      <pointCloudTopicName>/rrbot/camera/depth/points</pointCloudTopicName>
+	      <frameName>camera_link</frameName>
 	      <pointCloudCutoff>0.1</pointCloudCutoff>
 	      <pointCloudCutoffMax>6.0</pointCloudCutoffMax>
 	      <distortionK1>0</distortionK1>
