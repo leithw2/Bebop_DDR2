@@ -102,7 +102,7 @@
 
   <joint name="camera_joint" type="continuous">
     <axis xyz="0 1 0" />
-    <origin xyz="${camera_link/2 + width} 0 ${bodylen/2}" rpy="0 0 0"/>
+    <origin xyz="${camera_link/2 + width} 0 ${bodylen/2+.07}" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="camera_link"/>
   </joint>
@@ -161,7 +161,7 @@
 	      </image>
 	      <clip>
 		<near>0.1</near>
-		<far>6</far>
+		<far>4</far>
 	      </clip>
 	    </camera>
 
@@ -180,7 +180,7 @@
 	      <pointCloudTopicName>/rrbot/camera/depth/points</pointCloudTopicName>
 	      <frameName>/camera_link</frameName>
 	      <pointCloudCutoff>0.1</pointCloudCutoff>
-	      <pointCloudCutoffMax>6.0</pointCloudCutoffMax>
+	      <pointCloudCutoffMax>4.0</pointCloudCutoffMax>
 	      <distortionK1>0</distortionK1>
 	      <distortionK2>0</distortionK2>
 	      <distortionK3>0</distortionK3>

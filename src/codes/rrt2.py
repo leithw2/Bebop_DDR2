@@ -1,70 +1,9 @@
-#!/usr/bin/env python
-import roslib
-import sys
-import rospy
-import cv2
 import numpy as np
 from matplotlib import pyplot as ppl
 from matplotlib import cm
 from scipy.misc import imread
 import random, sys, math, os.path
-from std_msgs.msg import String
-from sensor_msgs.msg import Image
-from nav_msgs.msg import OccupancyGrid
-from cv_bridge import CvBridge, CvBridgeError
-from PIL import Image as im
-
-
-
-class RRT:
-
-    def __init__(self):
-        self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid,self.callback)
-
-
-    def callback(self,data):
-        #print(data)
-        map = np.array(data.data)
-        width = data.info.width
-        height = data.info.height
-        resize = np.uint8(np.resize(map, [height,width]))
-
-        resize = 255 - resize
-
-        img= im.fromarray(resize)
-        img.save('gfg_dummy_pic.png')
-        #cv2.imshow("",grayimg)
-        cv2.imshow("",resize)
-        cv2.waitKey(1)
-        #print(np.array(data.data).shape)
-        pass
-
-def main():
-    rrt = RRT()
-    print("Starting RRT Node ...")
-    rospy.init_node('RRT_Node', anonymous=True)
-
-    print 'Loading map... with file \'', MAP_IMG,'\''
-    img = imread(MAP_IMG)
-    kernel = np.ones((10,10),np.uint8)
-    img = cv2.dilate(img,kernel,iterations = 1)
-    img = cv2.erode(img,kernel,iterations = 1)
-    fig = ppl.gcf()
-    fig.clf()
-    ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(img, cmap=cm.Greys_r)
-    ax.axis('image')
-    ppl.draw()
-    print 'Map is', len(img[0]), 'x', len(img)
-    start, goal = selectStartGoalPoints(ax, img)
-    path = rapidlyExploringRandomTree(ax, img, start, goal, seed=SEED)
-
-
-    # try:
-    #     rospy.spin()
-    # except KeyboardInterrupt:
-    #     print("Shutting down")
-    #     cv2.destroyAllWindows()
+import cv2
 
 MAP_IMG = './gfg_dummy_pic.png' # Black and white image for a map
 MIN_NUM_VERT = 20 # Minimum number of vertex in the graph
@@ -270,8 +209,29 @@ def selectStartGoalPoints(ax, img):
   ppl.draw()
   return start, goal
 
+def main():
+  print 'Loading map... with file \'', MAP_IMG,'\''
+  img = imread(MAP_IMG)
+  kernel = np.ones((10,10),np.uint8)
+  img = cv2.dilate(img,kernel,iterations = 1)
+  img = cv2.erode(img,kernel,iterations = 1)
+  fig = ppl.gcf()
+  fig.clf()
+  ax = fig.add_subplot(1, 1, 1)
+  ax.imshow(img, cmap=cm.Greys_r)
+  ax.axis('image')
+  ppl.draw()
+  print 'Map is', len(img[0]), 'x', len(img)
+  start, goal = selectStartGoalPoints(ax, img)
+  path = rapidlyExploringRandomTree(ax, img, start, goal, seed=SEED)
+
+if len(sys.argv) > 2:
+  print 'Only one argument is needed'
+elif len(sys.argv) > 1:
+  if os.path.isfile(sys.argv[1]):
+    MAP_IMG = sys.argv[1]
+  else:
+    print sys.argv[1], 'is not a file'
+
 
 main()
-
-if __name__ == '__main__':
-    main(sys.argv)
