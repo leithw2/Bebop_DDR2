@@ -39,19 +39,23 @@ class RRT:
         width = data.info.width
         height = data.info.height
         resize = np.uint8(np.resize(map, [height,width]))
-        self.img = resize
+        self.img = 255 - resize
         kernel = np.ones((10,10),np.uint8)
         self.img = cv2.dilate(self.img,kernel,iterations = 1)
         self.img = cv2.erode(self.img,kernel,iterations = 1)
+        self.positionmap = [round(data.info.origin.position.x/0.05), round(data.info.origin.position.y/0.05)]
+        print(self.positionmap)
 
+        self.robot_pose = np.array([24 - self.positionmap[0],4 - self.positionmap[1]])
+        self.robot_target = np.array([34 - self.positionmap[0],8 - self.positionmap[1]])
         #cv2.imshow("",255 - data)
         #resize = 255 - resize
 
         #img= resize
-        # img.save('gfg_dummy_pic.png')
+        #img.save('gfg_dummy_pic.png')
         #cv2.imshow("",grayimg)
-        cv2.imshow("",255 - resize)
-        cv2.waitKey(0)
+        #cv2.imshow("",self.img)
+        #cv2.waitKey(0)
         #print(np.array(data.data).shape)
         print(resize)
         start, goal = self.selectStartGoalPoints(self.ax, self.img)
@@ -131,6 +135,11 @@ class RRT:
 
         print 'Showing resulting map'
         print 'Final path:', path
+        odomcoor = np.array(path)
+        odomcoorx = np.array([odomcoor[:,0] + self.positionmap[0]])*0.05
+        odomcoory = np.array([odomcoor[:,1] + self.positionmap[1]])*0.05
+        odomcoor = np.append(odomcoorx , odomcoory, axis= 0)
+        print 'Final path:', odomcoor.T
         print 'The final path is made from:', len(path),'connected points'
       else:
         path = None
@@ -236,27 +245,28 @@ class RRT:
       self.ax.set_xlabel('Select a starting point')
       occupied = True
       while(occupied):
-        point = np.array([30,30])
+        point = self.robot_pose
         start = [ round(point[0]), round(point[1]) ]
         if(img[int(start[1])][int(start[0])] == 255):
           occupied = False
           self.ax.plot(start[0], start[1], '.r')
         else:
           print 'Cannot place a starting point there'
+          print(self.robot_pose)
           self.ax.set_xlabel('Cannot place a starting point there, choose another point')
 
       print 'Select a goal point'
       self.ax.set_xlabel('Select a goal point')
       occupied = True
       while(occupied):
-        point = np.array([45,45])
+        point = self.robot_target
         goal = [ round(point[0]), round(point[1]) ]
         if(img[int(goal[1])][int(goal[0])] == 255):
           occupied = False
           self.ax.plot(goal[0], goal[1], '.b')
         else:
           print 'Cannot place a goal point there'
-          self.x.set_xlabel('Cannot place a goal point there, choose another point')
+          self.ax.set_xlabel('Cannot place a goal point there, choose another point')
 
       #ppl.draw()
       return start, goal

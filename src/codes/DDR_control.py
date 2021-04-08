@@ -2,7 +2,7 @@ import numpy as np
 from cv2 import aruco
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-
+from scipy.spatial.transform import Rotation as R
 import rospy
 import cv2
 import numpy
@@ -16,6 +16,7 @@ from cv_bridge import CvBridge, CvBridgeError
 
 class controller():
     def __init__(self):
+        self.haveOdom = False
         self.cmd_vel_pub = rospy.Publisher('/roboto_diff_drive_controller/cmd_vel', Twist,queue_size=1)
         self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
@@ -26,16 +27,21 @@ class controller():
         self.positions = []
         self.positions.append(Pose(Point(0,0,0), Quaternion(0,0,0,0)))
 
-        self.xc = 0 #origin in x
-        self.yc = 0 #origin in y
+
         self.phi = np.pi*0/2 #orientation respect of x axle
-        self.L = 0.30 #Distance between wheels
-        self.R = .05
+        self.L = 0.33 #Distance between wheels
+        self.R = 0.05
         self.ts = 0
         self.time = rospy.Time.now().to_sec()
         #Expected point to be reached
-        self.yrd = 5 #Type here the desired y value
-        self.xrd = 5 #Type here the desired x value
+        self.xrt = 0 #Type here the desired x value
+        self.yrt = 0#Type here the desired y value
+
+        self.pose = Odometry().pose.pose.position
+
+        self.xrd = self.xrt
+        self.yrd = self.yrt
+
 
         self.a = 0.0 #distance from the center of wheels til the control
 
@@ -43,11 +49,13 @@ class controller():
         self.w = 0
         #initial coordenates of the robot in funtion of control localization
 
-        self.xr = self.xc + self.a * np.cos(self.phi)
-        self.yr = self.yc + self.a * np.sin(self.phi)
+        # self.xr = self.xc + self.a * np.cos(self.phi)
+        # self.yr = self.yc + self.a * np.sin(self.phi)
 
         #self.search_next(self.positions)
+
         return
+
 
     def search_next(self, positions):
 
@@ -60,9 +68,10 @@ class controller():
 
     def move(self):
 
-        xre = self.xrd - self.xr
-        yre = self.yrd - self.yr
-        #Error matrix (2,1)
+        xre = self.xrd - self.pose.x
+        yre = self.yrd - self.pose.y
+
+        #Error matrix (2,1)target
         e = np.array([xre, yre])
         #print e
         #Jacobian matrix (2,2)
@@ -71,7 +80,7 @@ class controller():
 
         #Matrix of gaining parameters (2,2)
         K = np.array([[.5, 0.0],
-                      [0.0, .3]]);
+                      [0.0, .1]]);
 
         #control law
         v =  np.linalg.inv(J).dot(K).dot(e);
@@ -79,7 +88,10 @@ class controller():
         #initial lineal and angular velocities of the robot
         u = v[0];
         w = v[1];
-        print (v)
+        #print ("target pose:::::::::::::::.",self.pose)
+        print ("target pose error ", xre," ",yre  )
+
+        #print (v)
         self.send_u_w(u, w)
 
 
@@ -91,12 +103,12 @@ class controller():
         #w = self.w
 
         #control actions on the robot
-        xrp = self.u * np.cos(self.phi) - self.a * self.w * np.sin(self.phi);
-        yrp = self.u * np.sin(self.phi) + self.a * self.w * np.cos(self.phi);
+        #xrp = self.u controller position * np.cos(self.phi) - self.a * self.w * np.sin(self.phi);
+        #yrp = self.u * np.sin(self.phi) + self.a * self.w * np.cos(self.phi);
         #print (xrp, yrp)
         #Positions
-        self.xr  = self.xr  + self.ts * xrp;
-        self.yr  = self.yr  + self.ts * yrp;
+        # self.xr  = self.xr  + self.ts * xrp;
+        # self.yr  = self.yr  + self.ts * yrp;
         self.phi = self.phi + self.ts * self.w;
         #print (self.phi)
         #xc(k+1)=xr(k+1)-a*cos(phi(k+1));
@@ -120,10 +132,21 @@ class controller():
     def odometry_callback(self, data):
 
         #print self.ts
-
+        #self.haveOdom = True
         self.actual_pose = data
         self.u = data.twist.twist.linear.x
         self.w = data.twist.twist.angular.z
+        self.pose = data.pose.pose.position
+        r = [data.pose.pose.orientation.x,
+              data.pose.pose.orientation.y,
+              data.pose.pose.orientation.z,
+                                           1]
+        r = R.from_quat(r, normalized = False)
+        print(r.as_euler('xyz',degrees=False)[2])
+        #self.phi = r.as_euler('xyz',degrees=False)[2]
+
+        #self.xrd = self.xrt - self.pose.x
+        #self.yrd = self.yrt - self.pose.y
         self.move()
         #self.ts = rospy.Time.now().to_sec() - self.time
         self.r.sleep()
