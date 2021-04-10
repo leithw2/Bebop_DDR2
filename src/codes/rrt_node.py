@@ -10,6 +10,7 @@ from matplotlib import cm
 from scipy.misc import imread
 import random, sys, math, os.path
 from std_msgs.msg import String
+from geometry_msgs.msg import PoseArray, Point, Pose
 from sensor_msgs.msg import Image
 from nav_msgs.msg import OccupancyGrid
 from cv_bridge import CvBridge, CvBridgeError
@@ -25,12 +26,16 @@ class RRT:
 
     def __init__(self):
         self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid,self.callback)
+        self.path_pub = rospy.Publisher("/statemachine/path",PoseArray, queue_size=1)
         self.bridge = CvBridge()
         self.fig = ppl.gcf()
         self.fig.clf()
         self.ax = self.fig.add_subplot(1, 1, 1)
         #self.ax.imshow(self.img, cmap=cm.Greys_r)
         self.ax.axis('image')
+
+        path = np.array([[1,1],[2,1],[2,0],[1,0]])
+        self.send(path)
         #print 'Map is', len(img[0]), 'x', len(img)
 
     def callback(self, data):
@@ -57,15 +62,41 @@ class RRT:
         #cv2.imshow("",self.img)
         #cv2.waitKey(0)
         #print(np.array(data.data).shape)
+
         print(resize)
+
         start, goal = self.selectStartGoalPoints(self.ax, self.img)
         path = self.rapidlyExploringRandomTree(self.ax, self.img, start, goal, seed=SEED)
 
+
         pass
 
-    def draw(self):
-        self.fig.canvas.draw()
-        self.fig.show()
+    def send(self, msg):
+
+        my_array = PoseArray()
+        path = np.array([])
+        msg= msg
+        j=0
+        #print(msg[0][0])
+        for pos in msg:
+            #print(pos)
+            point = Point()
+            point.x = pos[0]
+            point.y = pos[1]
+            point.z = 0
+            pose = Pose()
+            pose.position = point
+            #print (j)
+            j+=1
+            path = np.append(path,pose)
+
+        #print(path)
+        my_array.poses = path
+        #self.rate.sleep()
+        try:
+            self.path_pub.publish(my_array)
+        except rospy.ROSInterruptException as ros_e :
+            print(ros_e)
 
     def rapidlyExploringRandomTree(self, ax, img, start, goal, seed=None):
       hundreds = 100
@@ -148,6 +179,7 @@ class RRT:
         print 'Showing resulting map'
 
       #ppl.show()
+      self.send(path)
       return path
 
 
@@ -272,21 +304,17 @@ class RRT:
       return start, goal
 
 def main():
+    rospy.init_node('RRT_Node', anonymous=True)
     rrt = RRT()
     print("Starting RRT Node ...")
-    rospy.init_node('RRT_Node', anonymous=True)
-
     try:
-        # while not rospy.is_shutdown():
-        #     rrt.draw()
+        rrt.send(np.array([[1,1],[2,1],[2,0],[1,0]]))
+        #while not rospy.is_shutdown():
+
         rospy.spin()
     except KeyboardInterrupt:
         print("Shutting down")
         cv2.destroyAllWindows()
-
-
-
-
 
 if __name__ == '__main__':
     main()

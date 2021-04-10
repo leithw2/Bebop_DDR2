@@ -7,6 +7,7 @@ import rospy
 import cv2
 import numpy
 import std_msgs.msg
+from geometry_msgs.msg import PoseArray
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Transform, Quaternion, Point, Twist, Pose
 from nav_msgs.msg import Odometry
@@ -20,39 +21,27 @@ class controller():
         self.cmd_vel_pub = rospy.Publisher('/roboto_diff_drive_controller/cmd_vel', Twist,queue_size=1)
         self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
+        self.path_sub = rospy.Subscriber("/statemachine/path", PoseArray,self.path_callback)
 
         self.bridge = CvBridge()
         self.r = rospy.Rate(50)
-
-        self.positions = []
-        self.positions.append(Pose(Point(0,0,0), Quaternion(0,0,0,0)))
-
 
         self.phi = np.pi*0/2 #orientation respect of x axle
         self.L = 0.33 #Distance between wheels
         self.R = 0.05
         self.ts = 0
         self.time = rospy.Time.now().to_sec()
-        #Expected point to be reached
-        self.xrt = 1 #Type here the desired x value
-        self.yrt = 1#Type here the desired y value
-
         self.pose = Odometry().pose.pose.position
 
-        self.xrd = self.xrt
-        self.yrd = self.yrt
-
+        self.xrd = 0
+        self.yrd = 0
 
         self.a = 0.0 #distance from the center of wheels til the control
 
         self.u = 0
         self.w = 0
-        #initial coordenates of the robot in funtion of control localization
 
-        # self.xr = self.xc + self.a * np.cos(self.phi)
-        # self.yr = self.yc + self.a * np.sin(self.phi)
-
-        #self.search_next(self.positions)
+        self.state = 0
 
         return
 
@@ -66,53 +55,66 @@ class controller():
 
 
 
-    def move(self):
+    def rotate(self):
 
-        xre = self.xrd - self.pose.x
-        yre = self.yrd - self.pose.y
+        point =  np.array([self.pose.x,self.pose.y])
+        target = np.array([self.xrd,self.yrd ])
 
+        dist = numpy.linalg.norm(point - target)
+        w = 0
         #Error matrix (2,1)target
-        e = np.array([xre, yre])
-        #print e
-        #Jacobian matrix (2,2)
-        J = np.array([[np.cos(self.phi), -np.sin(self.phi)],
-                      [np.sin(self.phi),  np.cos(self.phi)]])
+        angle = np.arctan2(self.yrd - self.pose.y , self.xrd - self.pose.x)
+        vel = .3
+        if angle > 0:
+            if self.phi < angle:
+                w = vel * abs(angle - self.phi) +.1 #positive
 
-        #Matrix of gaining parameters (2,2)
-        K = np.array([[1, 0.0],
-                      [0.0, .5]]);
+            if self.phi >= angle:
+                w = -vel * abs(angle - self.phi) -.1 #negative
 
-        #control law
-        v =  np.linalg.inv(J).dot(K).dot(e);
+        if angle <= 0:
+            if self.phi > angle:
+                w = -vel * abs(angle - self.phi) - .1 #negative
 
+            if self.phi <= angle:
+                w = vel * abs(angle - self.phi) +.1 #positive
+
+        if self.state == 0 and abs(angle - self.phi) < 0.05:
+            self.state = 1
+            return
+        #map_angle =
+        #map_phi =
         #initial lineal and angular velocities of the robot
-        u = v[0];
-        w = v[1];
-        #print ("target pose:::::::::::::::.",self.pose)
-        print ("target pose error ", xre," ",yre  )
+        u = 0
 
+        #print ("target pose:::::::::::::::.",self.pose)
+        #print ("target pose error ", xre," ",yre  )
+        #print ("angle target ", angle," actual angle ", self.phi)
         #print (v)
         self.send_u_w(u, w)
 
+        return
 
-        #print ("Velocidad lineal = ", u)
-        #print ("Velocidad angular = ", w)
+    def move(self):
 
-        #data return
-        #u = self.u
-        #w = self.w
+        point =  np.array([self.pose.x,self.pose.y])
+        target = np.array([self.xrd,self.yrd ])
 
-        #control actions on the robot
-        #xrp = self.u controller position * np.cos(self.phi) - self.a * self.w * np.sin(self.phi);
-        #yrp = self.u * np.sin(self.phi) + self.a * self.w * np.cos(self.phi);
-        #print (xrp, yrp)
-        #Positions
-        # self.xr  = self.xr  + self.ts * xrp;
-        # self.yr  = self.yr  + self.ts * yrp;
-        #self.phi = self.phi + self.ts * self.w;
-        #print (self.phi)
-        #xc(k+1)=xr(k+1)-a*cos(phi(k+1));
-        #yc(k+1)=yr(k+1)-a*sin(phi(k+1));
+        dist = numpy.linalg.norm(point - target)
+        w = 0
+        u = 0
+        vel = 3
+
+        if dist >= 0.5:
+            u = vel * dist + .1
+
+        if self.state == 1 and dist < 0.5:
+            self.state = 2
+            return
+
+        #print ("dist target ", dist)
+        #print (v)
+        self.send_u_w(u, w)
 
         return
 
@@ -128,6 +130,8 @@ class controller():
         self.cmd_vel_pub.publish(target)
         return
 
+    def path_callback(self, data):
+        print (data)
 
     def odometry_callback(self, data):
 
@@ -141,13 +145,16 @@ class controller():
               data.pose.pose.orientation.y,
               data.pose.pose.orientation.z,
               data.pose.pose.orientation.w]
-        r = R.from_quat(r, normalized = False)
+        r = R.from_quat(r, normalized = True)
         #print(r.as_euler('xyz',degrees=False)[2])
         self.phi = r.as_euler('xyz',degrees=False)[2]
 
         #self.xrd = self.xrt - self.pose.x
         #self.yrd = self.yrt - self.pose.y
-        self.move()
+        if self.state == 0:
+            self.rotate()
+        if self.state == 1:
+            self.move()
         #self.ts = rospy.Time.now().to_sec() - self.time
         self.r.sleep()
         self.ts = rospy.Time.now().to_sec() - self.time
