@@ -5,25 +5,29 @@ from std_msgs.msg import String
 
 class state1():
     def __init__(self):
-        self.name="1"
+        self.name="Start"
+
     def enter(self):
         self.some = 0
 
     def do(self):
         self.some = 0
         return 1
+
     def exit(self):
         self.some = 0
 
 class state2():
     def __init__(self):
-        self.name="2"
+        self.name="Stand By"
+
     def enter(self):
         self.some = 0
 
     def do(self):
         self.some = 0
         return 2
+
     def exit(self):
         self.some = 0
 

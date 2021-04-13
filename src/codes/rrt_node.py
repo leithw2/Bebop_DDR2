@@ -1,105 +1,136 @@
 #!/usr/bin/env python
 import roslib
-import sys
 import rospy
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
-from matplotlib import pyplot as ppl
+from matplotlib import pyplot as plt
 from matplotlib import cm
 from scipy.misc import imread
 import random, sys, math, os.path
 from std_msgs.msg import String
-from geometry_msgs.msg import PoseArray, Point, Pose
+from geometry_msgs.msg import PoseArray, Point, Pose, PoseStamped
 from sensor_msgs.msg import Image
-from nav_msgs.msg import OccupancyGrid
-from cv_bridge import CvBridge, CvBridgeError
+from nav_msgs.msg import OccupancyGrid, Path
 from PIL import Image as im
 
-MAP_IMG = './gfg_dummy_pic.png' # Black and white image for a map
+MAP_IMG = './maze.jpg' # Black and white image for a map
 MIN_NUM_VERT = 20 # Minimum number of vertex in the graph
-MAX_NUM_VERT = 1500 # Maximum number of vertex in the graph
-STEP_DISTANCE = 10 # Maximum distance between two vertex
+MAX_NUM_VERT = 2000 # Maximum number of vertex in the graph
+STEP_DISTANCE = 20 # Maximum distance between two vertex
 SEED = None # For random numbers
 
 class RRT:
 
     def __init__(self):
+        self.rate = rospy.Rate(1)
+        #########
+        self.debug_image = imread(MAP_IMG,mode="L")
+        img = self.debug_image
+        ########
         self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid,self.callback)
-        self.path_pub = rospy.Publisher("/statemachine/path",PoseArray, queue_size=1)
+        self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
+        self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
+
         self.bridge = CvBridge()
-        self.fig = ppl.gcf()
+        self.fig = plt.figure()
         self.fig.clf()
         self.ax = self.fig.add_subplot(1, 1, 1)
-        #self.ax.imshow(self.img, cmap=cm.Greys_r)
-        self.ax.axis('image')
 
-        path = np.array([[1,1],[2,1],[2,0],[1,0]])
-        self.send(path)
-        #print 'Map is', len(img[0]), 'x', len(img)
+        self.ax.imshow(img)
+        self.fig.canvas.draw()
+
+        self.img = self.debug_image
+
+        kernel = np.ones((3,3),np.uint8)
+
+        self.img = cv2.dilate(self.img,kernel,iterations = 1)
+        self.img = cv2.erode(self.img,kernel,iterations = 3)
+
+        self.debug_image =self.img
+
+
+    def debugging(self):
+
+        self.fig.clf()
+        self.ax = self.fig.add_subplot(1, 1, 1)
+        #self.ax.axis('image')
+        self.ax.imshow(self.debug_image, cmap=cm.Greys_r)
+        self.fig.canvas.draw()
+
+        self.robot_pose = np.array([10,10])
+        self.robot_target = np.array([190,100])
+        self.positionmap = [0,0]
+
+        ##################################
+
+        start, goal = self.selectStartGoalPoints(self.ax, self.img)
+        path = self.rapidlyExploringRandomTree(self.ax, self.img, start, goal, seed=SEED)
+
+        if path != None:
+            self.send(path)
 
     def callback(self, data):
-        #print(data)
+
         map = np.array(data.data)
         width = data.info.width
         height = data.info.height
         resize = np.uint8(np.resize(map, [height,width]))
+
         self.img = 255 - resize
         kernel = np.ones((10,10),np.uint8)
+
         self.img = cv2.dilate(self.img,kernel,iterations = 1)
         self.img = cv2.erode(self.img,kernel,iterations = 1)
         self.positionmap = [round(data.info.origin.position.x/0.05), round(data.info.origin.position.y/0.05)]
-        print(self.positionmap)
 
         self.robot_pose = np.array([24 - self.positionmap[0],4 - self.positionmap[1]])
-        self.robot_target = np.array([34 - self.positionmap[0],8 - self.positionmap[1]])
-        #cv2.imshow("",255 - data)
-        #resize = 255 - resize
-
-        #img= resize
-        #img.save('gfg_dummy_pic.png')
-        #cv2.imshow("",grayimg)
-        #cv2.imshow("",self.img)
-        #cv2.waitKey(0)
-        #print(np.array(data.data).shape)
 
         print(resize)
 
         start, goal = self.selectStartGoalPoints(self.ax, self.img)
         path = self.rapidlyExploringRandomTree(self.ax, self.img, start, goal, seed=SEED)
 
-
         pass
 
-    def send(self, msg):
+    def send_image_path(self, path_image):
 
-        my_array = PoseArray()
-        path = np.array([])
-        msg= msg
-        j=0
-        #print(msg[0][0])
-        for pos in msg:
-            #print(pos)
-            point = Point()
-            point.x = pos[0]
-            point.y = pos[1]
-            point.z = 0
-            pose = Pose()
-            pose.position = point
-            #print (j)
-            j+=1
-            path = np.append(path,pose)
+        """
+        Publish the ROS message containing the waypoints
+        """
 
-        #print(path)
-        my_array.poses = path
-        #self.rate.sleep()
+        image_message = self.bridge.cv2_to_imgmsg(path_image, "bgr8")
+
         try:
-            self.path_pub.publish(my_array)
+            self.path_image_pub.publish(image_message)
         except rospy.ROSInterruptException as ros_e :
             print(ros_e)
 
+        self.rate.sleep()
+
+    def send(self, path):
+        """
+        Publish the ROS message containing the waypoints
+        """
+        msg = Path()
+        msg.header.frame_id = "path"
+        msg.header.stamp = rospy.Time.now()
+        for pos in path:
+            pose = PoseStamped()
+            pose.pose.position.x = pos[0]
+            pose.pose.position.y = pos[1]
+            pose.pose.position.z = 0
+
+            msg.poses.append(pose)
+
+        try:
+            self.path_pub.publish(msg)
+        except rospy.ROSInterruptException as ros_e :
+            print(ros_e)
+        self.rate.sleep()
+
     def rapidlyExploringRandomTree(self, ax, img, start, goal, seed=None):
-      hundreds = 100
+      hundreds = 1000
       random.seed(seed)
       points = []
       graph = []
@@ -117,20 +148,20 @@ class RRT:
 
       i = 0
       while (goal not in points) and (len(points) < MAX_NUM_VERT):
-        if (i % 100) == 0:
+        if (i % 1000) == 0:
           print i, 'points randomly generated'
 
         if (len(points) % hundreds) == 0:
           print len(points), 'vertex generated'
-          hundreds = hundreds + 100
+          hundreds = hundreds + 1000
 
         while(occupied):
-          if phaseTwo and (random.random() > 0.8):
+          if phaseTwo and (random.random() > 0.80):
             point = [ random.randint(minX, maxX), random.randint(minY, maxY) ]
           else:
-            point = [ random.randint(0, len(img[0]) - 1), random.randint(0, len(img) - 1) ]
+            point = [ random.randint(0, len(self.img[0]) - 1), random.randint(0, len(self.img[1]) - 1) ]
 
-          if(img[point[1]][point[0]] == 255):
+          if(img[point[1]][point[0]] >= 200):
             occupied = False
 
         occupied = True
@@ -140,7 +171,7 @@ class RRT:
         self.addToGraph(self.ax, graph, newPoints, point)
         newPoints.pop(0) # The first element is already in the points list
         points.extend(newPoints)
-        #ppl.draw()
+
         i = i + 1
 
         if len(points) >= MIN_NUM_VERT:
@@ -154,15 +185,20 @@ class RRT:
           self.addToGraph(self.ax, graph, newPoints, goal)
           newPoints.pop(0)
           points.extend(newPoints)
-          #ppl.draw()
+          #plt.draw()
 
       if goal in points:
         print 'Goal found, total vertex in graph:', len(points), 'total random points generated:', i
+        #print(start)
         path = self.searchPath(graph, start, [start])
-
+        NoneType = type(None)
+        if (type(path) == NoneType):
+            print("Fail to connect....................................)")
+            return
         for i in range(len(path)-1):
           self.ax.plot([ path[i][0], path[i+1][0] ], [ path[i][1], path[i+1][1] ], color='b', linestyle='-', linewidth=2)
-          #ppl.draw()
+          pass
+          #plt.draw()
 
         print 'Showing resulting map'
         print 'Final path:', path
@@ -178,17 +214,26 @@ class RRT:
         print 'Total vertex in graph:', len(points), 'total random points generated:', i
         print 'Showing resulting map'
 
-      #ppl.show()
-      self.send(path)
+      self.fig.canvas.draw()
+      img2 = np.fromstring(self.fig.canvas.tostring_rgb(), dtype=np.uint8,
+            sep='')
+
+      ncols, nrows = self.fig.canvas.get_width_height()
+      img2  = img2.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
+
+      img2 = cv2.cvtColor(img2,cv2.COLOR_RGB2BGR)
+      self.send_image_path(img2)
+
       return path
 
-
     def searchPath(self, graph, point, path):
+
       for i in graph:
         if point == i[0]:
           p = i
 
       if p[0] == graph[-1][0]:
+
         return path
 
       for link in p[1]:
@@ -198,6 +243,9 @@ class RRT:
         if finalPath != None:
           return finalPath
         else:
+          #print(graph)
+          #print(point)
+          #print(path)
           path.pop()
 
 
@@ -207,6 +255,7 @@ class RRT:
           nearest = [ nearest for nearest in graph if (nearest[0] == [ newPoints[p][0], newPoints[p][1] ]) ]
           nearest[0][1].append(newPoints[p + 1])
           graph.append((newPoints[p + 1], []))
+
 
           if not p==0:
             self.ax.plot(newPoints[p][0], newPoints[p][1], '+k') # First point is already painted
@@ -279,7 +328,7 @@ class RRT:
       while(occupied):
         point = self.robot_pose
         start = [ round(point[0]), round(point[1]) ]
-        if(img[int(start[1])][int(start[0])] == 255):
+        if(img[int(start[1])][int(start[0])] >= 200):
           occupied = False
           self.ax.plot(start[0], start[1], '.r')
         else:
@@ -293,14 +342,14 @@ class RRT:
       while(occupied):
         point = self.robot_target
         goal = [ round(point[0]), round(point[1]) ]
-        if(img[int(goal[1])][int(goal[0])] == 255):
+        if(img[int(goal[1])][int(goal[0])] >= 200):
           occupied = False
           self.ax.plot(goal[0], goal[1], '.b')
         else:
           print 'Cannot place a goal point there'
           self.ax.set_xlabel('Cannot place a goal point there, choose another point')
 
-      #ppl.draw()
+      #plt.draw()
       return start, goal
 
 def main():
@@ -308,9 +357,9 @@ def main():
     rrt = RRT()
     print("Starting RRT Node ...")
     try:
-        rrt.send(np.array([[1,1],[2,1],[2,0],[1,0]]))
-        #while not rospy.is_shutdown():
-
+        #rrt.send(np.array([[1,1],[2,1],[2,0],[1,0]]))
+        while not rospy.is_shutdown():
+            rrt.debugging()
         rospy.spin()
     except KeyboardInterrupt:
         print("Shutting down")

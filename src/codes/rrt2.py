@@ -5,10 +5,10 @@ from scipy.misc import imread
 import random, sys, math, os.path
 import cv2
 
-MAP_IMG = './gfg_dummy_pic.png' # Black and white image for a map
+MAP_IMG = './maze.jpg' # Black and white image for a map
 MIN_NUM_VERT = 20 # Minimum number of vertex in the graph
 MAX_NUM_VERT = 1500 # Maximum number of vertex in the graph
-STEP_DISTANCE = 10 # Maximum distance between two vertex
+STEP_DISTANCE = 30 # Maximum distance between two vertex
 SEED = None # For random numbers
 
 def rapidlyExploringRandomTree(ax, img, start, goal, seed=None):
@@ -43,7 +43,7 @@ def rapidlyExploringRandomTree(ax, img, start, goal, seed=None):
       else:
         point = [ random.randint(0, len(img[0]) - 1), random.randint(0, len(img) - 1) ]
 
-      if(img[point[1]][point[0]] == 255):
+      if(img[point[1]][point[0]] >= 200):
         occupied = False
 
     occupied = True
@@ -73,9 +73,9 @@ def rapidlyExploringRandomTree(ax, img, start, goal, seed=None):
     print 'Goal found, total vertex in graph:', len(points), 'total random points generated:', i
     path = searchPath(graph, start, [start])
 
-    for i in range(len(path)-1):
-      ax.plot([ path[i][0], path[i+1][0] ], [ path[i][1], path[i+1][1] ], color='b', linestyle='-', linewidth=2)
-      ppl.draw()
+    # for i in range(len(path)-1):
+    #   ax.plot([ path[i][0], path[i+1][0] ], [ path[i][1], path[i+1][1] ], color='b', linestyle='-', linewidth=2)
+    #   ppl.draw()
 
     print 'Showing resulting map'
     print 'Final path:', path
@@ -105,6 +105,7 @@ def searchPath(graph, point, path):
     if finalPath != None:
       return finalPath
     else:
+      print(path)
       path.pop()
 
 
@@ -211,8 +212,9 @@ def selectStartGoalPoints(ax, img):
 
 def main():
   print 'Loading map... with file \'', MAP_IMG,'\''
-  img = imread(MAP_IMG)
-  kernel = np.ones((10,10),np.uint8)
+  img = imread(MAP_IMG, mode="L")
+
+  kernel = np.ones((3,3),np.uint8)
   img = cv2.dilate(img,kernel,iterations = 1)
   img = cv2.erode(img,kernel,iterations = 1)
   fig = ppl.gcf()

@@ -7,9 +7,9 @@ import rospy
 import cv2
 import numpy
 import std_msgs.msg
-from geometry_msgs.msg import PoseArray
 from sensor_msgs.msg import Image
-from geometry_msgs.msg import Transform, Quaternion, Point, Twist, Pose
+from nav_msgs.msg import Path
+from geometry_msgs.msg import Transform, Quaternion, Point, Twist, Pose, PoseStamped
 from nav_msgs.msg import Odometry
 
 from cv_bridge import CvBridge, CvBridgeError
@@ -21,7 +21,7 @@ class controller():
         self.cmd_vel_pub = rospy.Publisher('/roboto_diff_drive_controller/cmd_vel', Twist,queue_size=1)
         self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
-        self.path_sub = rospy.Subscriber("/statemachine/path", PoseArray,self.path_callback)
+        self.path_sub = rospy.Subscriber("/rrt/path", Path,self.path_callback)
 
         self.bridge = CvBridge()
         self.r = rospy.Rate(50)
