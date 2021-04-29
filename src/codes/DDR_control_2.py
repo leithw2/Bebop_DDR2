@@ -18,6 +18,7 @@ from cv_bridge import CvBridge, CvBridgeError
 class controller():
     def __init__(self):
         self.haveOdom = False
+        self.havePath = False
         self.cmd_vel_pub = rospy.Publisher('/roboto_diff_drive_controller/cmd_vel', Twist,queue_size=1)
         self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
@@ -33,8 +34,8 @@ class controller():
         self.time = rospy.Time.now().to_sec()
         self.pose = Odometry().pose.pose.position
 
-        self.xrd = 0
-        self.yrd = 0
+        #self.xrd = +5.8
+        #self.yrd = -3.12
 
         self.a = 0.0 #distance from the center of wheels til the control
 
@@ -48,40 +49,76 @@ class controller():
 
     def search_next(self, positions):
 
-        if positions:
-            #self.target_pose = self.positions.pop()
-            #print(self.target_pose)
-            self.move()
+
+        if self.state != 3:
+
+            if self.state == 0 and positions :
+                self.target_pose = positions.pop(0)
+                self.state = 1
+
+            print(self.target_pose)
+            print([self.pose.x,self.pose.y])
+            if self.state == 1:
+                self.rotate(self.target_pose)
+                print("Rotating")
+
+            if self.state == 2:
+                self.move(self.target_pose)
+                print("Moving")
+        else:
+            self.state = 3
+            print("Path finish")
+        pass
 
 
-
-    def rotate(self):
+    def rotate(self, target):
 
         point =  np.array([self.pose.x,self.pose.y])
-        target = np.array([self.xrd,self.yrd ])
+        #target = np.array([self.xrd,self.yrd ])
 
         dist = numpy.linalg.norm(point - target)
         w = 0
         #Error matrix (2,1)target
-        angle = np.arctan2(self.yrd - self.pose.y , self.xrd - self.pose.x)
+        angle = np.arctan2(target[1] - self.pose.y , target[0]- self.pose.x)
         vel = .3
+
+        if dist <= 0.1:
+            self.state = 2
+            return
+
+
+        if self.state == 1 and abs(angle - self.phi) < 0.1:
+            self.state = 2
+            return
+
+        # if angle > 0:
+        #     if self.phi < angle:
+        #         w = vel * abs(angle - self.phi) +.1 #positive
+        #
+        #     if self.phi >= angle:
+        #         w = -vel * abs(angle - self.phi) -.1 #negative
+        #
+        # if angle <= 0:
+        #     if self.phi > angle:
+        #         w = -vel * abs(angle - self.phi) - .1 #negative
+        #
+        #     if self.phi <= angle:
+        #         w = vel * abs(angle - self.phi) +.1 #positive
+
         if angle > 0:
             if self.phi < angle:
-                w = vel * abs(angle - self.phi) +.1 #positive
+                w = +.5 #positive
 
             if self.phi >= angle:
-                w = -vel * abs(angle - self.phi) -.1 #negative
+                w = -.5 #negative
 
         if angle <= 0:
             if self.phi > angle:
-                w = -vel * abs(angle - self.phi) - .1 #negative
+                w = -.5 #negative
 
             if self.phi <= angle:
-                w = vel * abs(angle - self.phi) +.1 #positive
+                w = +.5 #positive
 
-        if self.state == 0 and abs(angle - self.phi) < 0.05:
-            self.state = 1
-            return
         #map_angle =
         #map_phi =
         #initial lineal and angular velocities of the robot
@@ -93,27 +130,28 @@ class controller():
         #print (v)
         self.send_u_w(u, w)
 
+
         return
 
-    def move(self):
+    def move(self, target):
 
         point =  np.array([self.pose.x,self.pose.y])
-        target = np.array([self.xrd,self.yrd ])
-
+        #target = np.array([self.xrd,self.yrd ])
         dist = numpy.linalg.norm(point - target)
         w = 0
         u = 0
-        vel = 3
+        vel = 1
 
-        if dist >= 0.5:
-            u = vel * dist + .1
+        if self.state == 2 and dist < 0.1:
+            self.state = 0
 
-        if self.state == 1 and dist < 0.5:
-            self.state = 2
             return
 
-        #print ("dist target ", dist)
-        #print (v)
+        if dist >= 0.1:
+            u = vel * dist + .1
+
+
+
         self.send_u_w(u, w)
 
         return
@@ -128,46 +166,50 @@ class controller():
         target.angular.z = w
 
         self.cmd_vel_pub.publish(target)
+
         return
 
     def path_callback(self, data):
-        print (data)
+        print (data.poses)
+        self.positions = []
+
+        for pose in data.poses:
+            point = [pose.pose.position.x, pose.pose.position.y]
+            self.positions.append(point)
+
+        print (self.positions)
+        self.havePath = True
+
 
     def odometry_callback(self, data):
 
-        #print self.ts
-        #self.haveOdom = True
-        self.actual_pose = data
-        self.u = data.twist.twist.linear.x
-        self.w = data.twist.twist.angular.z
-        self.pose = data.pose.pose.position
-        r = [data.pose.pose.orientation.x,
-              data.pose.pose.orientation.y,
-              data.pose.pose.orientation.z,
-              data.pose.pose.orientation.w]
-        r = R.from_quat(r, normalized = True)
-        #print(r.as_euler('xyz',degrees=False)[2])
-        self.phi = r.as_euler('xyz',degrees=False)[2]
+        if self.havePath:
 
-        #self.xrd = self.xrt - self.pose.x
-        #self.yrd = self.yrt - self.pose.y
-        if self.state == 0:
-            self.rotate()
-        if self.state == 1:
-            self.move()
-        #self.ts = rospy.Time.now().to_sec() - self.time
-        self.r.sleep()
-        self.ts = rospy.Time.now().to_sec() - self.time
-        self.time = rospy.Time.now().to_sec()
+            self.actual_pose = data
+            self.u = data.twist.twist.linear.x
+            self.w = data.twist.twist.angular.z
+            self.pose = data.pose.pose.position
+            r = [data.pose.pose.orientation.x,
+                  data.pose.pose.orientation.y,
+                  data.pose.pose.orientation.z,
+                  data.pose.pose.orientation.w]
+            r = R.from_quat(r, normalized = True)
+            #print(r.as_euler('xyz',degrees=False)[2])
+            self.phi = r.as_euler('xyz',degrees=False)[2]
 
 
+            self.search_next(self.positions)
 
-    def camera_callback(self,data):
+            self.r.sleep()
+            self.ts = rospy.Time.now().to_sec() - self.time
+            self.time = rospy.Time.now().to_sec()
+
+
+    def camera_callback(self, data):
         #print "here"
         global i
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-
     	except CvBridgeError as e:
     		print(e)
     	(row,cols,channels) = cv_image.shape

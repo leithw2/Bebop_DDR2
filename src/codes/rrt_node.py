@@ -4,6 +4,8 @@ import rospy
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from scipy.misc import imread
@@ -11,43 +13,44 @@ import random, sys, math, os.path
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseArray, Point, Pose, PoseStamped
 from sensor_msgs.msg import Image
-from nav_msgs.msg import OccupancyGrid, Path
+from nav_msgs.msg import OccupancyGrid, Path, Odometry
 from PIL import Image as im
 
 MAP_IMG = './maze.jpg' # Black and white image for a map
-MIN_NUM_VERT = 20 # Minimum number of vertex in the graph
-MAX_NUM_VERT = 2000 # Maximum number of vertex in the graph
-STEP_DISTANCE = 20 # Maximum distance between two vertex
+MIN_NUM_VERT = 10 # Minimum number of vertex in the graph
+MAX_NUM_VERT = 1000 # Maximum number of vertex in the graph
+STEP_DISTANCE = 10 # Maximum distance between two vertex
 SEED = None # For random numbers
 
 class RRT:
 
     def __init__(self):
+
+        self.Odometry = False
         self.rate = rospy.Rate(1)
         #########
         self.debug_image = imread(MAP_IMG,mode="L")
-        img = self.debug_image
+        print(type(self.debug_image ))
         ########
-        self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid,self.callback)
-        self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
-        self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
 
         self.bridge = CvBridge()
+        self.fig = None
         self.fig = plt.figure()
         self.fig.clf()
         self.ax = self.fig.add_subplot(1, 1, 1)
 
-        self.ax.imshow(img)
-        self.fig.canvas.draw()
-
-        self.img = self.debug_image
+        self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid,self.callback)
+        self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
+        self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
+        self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
+        #self.img = self.debug_image
 
         kernel = np.ones((3,3),np.uint8)
 
-        self.img = cv2.dilate(self.img,kernel,iterations = 1)
-        self.img = cv2.erode(self.img,kernel,iterations = 3)
+        #self.img = cv2.dilate(self.img,kernel,iterations = 1)
+        #self.img = cv2.erode(self.img,kernel,iterations = 3)
 
-        self.debug_image =self.img
+        #self.debug_image =self.img
 
 
     def debugging(self):
@@ -66,32 +69,86 @@ class RRT:
 
         start, goal = self.selectStartGoalPoints(self.ax, self.img)
         path = self.rapidlyExploringRandomTree(self.ax, self.img, start, goal, seed=SEED)
-
-        if path != None:
+        NoneType = type(None)
+        if type(path) != NoneType:
             self.send(path)
 
     def callback(self, data):
 
+        path = None
         map = np.array(data.data)
-        width = data.info.width
-        height = data.info.height
-        resize = np.uint8(np.resize(map, [height,width]))
+        self.width = data.info.width
+        self.height = data.info.height
 
-        self.img = 255 - resize
-        kernel = np.ones((10,10),np.uint8)
-
-        self.img = cv2.dilate(self.img,kernel,iterations = 1)
-        self.img = cv2.erode(self.img,kernel,iterations = 1)
         self.positionmap = [round(data.info.origin.position.x/0.05), round(data.info.origin.position.y/0.05)]
 
-        self.robot_pose = np.array([24 - self.positionmap[0],4 - self.positionmap[1]])
+        resize = np.array(np.uint8(np.resize(map, [self.height,self.width])))
+        self.img = 255 - resize
+        # specify a threshold 0-255
+        threshold = 200
 
-        print(resize)
+        # make all pixels < threshold black
 
-        start, goal = self.selectStartGoalPoints(self.ax, self.img)
-        path = self.rapidlyExploringRandomTree(self.ax, self.img, start, goal, seed=SEED)
 
+        print(type(self.img ))
+
+        #cv2.imshow("",self.img )
+        #cv2.waitKey(0)
+
+        kernel = np.ones((3,3),np.uint8)
+        self.img = cv2.erode(self.img,kernel,iterations = 2)
+        #self.img = cv2.dilate(self.img,kernel,iterations = 1)
+
+
+        self.img = 255 * (self.img  > threshold)
+
+        print(self.positionmap)
+        #robposex = +4.0 / 0.05
+        #robposey = -1.0 / 0.05
+
+        tarposex = +2.5 / 0.05
+        tarposey = -1.9 / 0.05
+
+        #self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
+        self.robot_target = np.array([tarposex - self.positionmap[0], tarposey - self.positionmap[1]])
+
+        #print(self.robot_pose)
+        print(self.robot_target)
+
+        if self.fig == None:
+            self.fig = plt.figure()
+            self.fig.clf()
+            self.ax = self.fig.add_subplot(1, 1, 1)
+            self.ax.axis('image')
+            self.ax.imshow(self.img, cmap=cm.Greys_r)
+            print("INSIDE                     DFSDFSDGRGERHRTJSRTJRTSJRTJ")
+
+
+        self.fig.clf()
+        #plt.gca().invert_yaxis()
+        self.ax = self.fig.add_subplot(1, 1, 1)
+        self.ax.imshow(self.img, cmap=cm.Greys_r)
+
+        self.fig.canvas.draw()
+        if self.Odometry:
+
+            start, goal = self.selectStartGoalPoints(self.ax, self.img)
+            path = self.rapidlyExploringRandomTree(self.ax, self.img, start, goal, seed=SEED)
+
+        NoneType = type(None)
+
+        if type(path) != NoneType:
+            self.send(path)
         pass
+
+    def odometry_callback(self, data):
+        self.Odometry = True
+        self.actual_pose = data
+        pose = data.pose.pose.position
+        self.robot_pose = np.array([pose.x /0.05 - self.positionmap[0], pose.y/0.05  - self.positionmap[1]])
+        #print("robot pose relative to map: ", self.robot_pose)
+
+
 
     def send_image_path(self, path_image):
 
@@ -159,9 +216,9 @@ class RRT:
           if phaseTwo and (random.random() > 0.80):
             point = [ random.randint(minX, maxX), random.randint(minY, maxY) ]
           else:
-            point = [ random.randint(0, len(self.img[0]) - 1), random.randint(0, len(self.img[1]) - 1) ]
-
-          if(img[point[1]][point[0]] >= 200):
+            point = [ random.randint(0, self.width - 1), random.randint(0, self.height - 1) ]
+          #print(np.shape(self.img))
+          if(self.img[point[1]][point[0]] >= 200):
             occupied = False
 
         occupied = True
@@ -224,7 +281,7 @@ class RRT:
       img2 = cv2.cvtColor(img2,cv2.COLOR_RGB2BGR)
       self.send_image_path(img2)
 
-      return path
+      return odomcoor.T
 
     def searchPath(self, graph, point, path):
 
@@ -334,6 +391,9 @@ class RRT:
         else:
           print 'Cannot place a starting point there'
           print(self.robot_pose)
+          print(self.positionmap)
+          print((img[int(start[1])][int(start[0])]))
+
           self.ax.set_xlabel('Cannot place a starting point there, choose another point')
 
       print 'Select a goal point'
@@ -358,8 +418,8 @@ def main():
     print("Starting RRT Node ...")
     try:
         #rrt.send(np.array([[1,1],[2,1],[2,0],[1,0]]))
-        while not rospy.is_shutdown():
-            rrt.debugging()
+        # while not rospy.is_shutdown():
+        #     rrt.debugging()
         rospy.spin()
     except KeyboardInterrupt:
         print("Shutting down")

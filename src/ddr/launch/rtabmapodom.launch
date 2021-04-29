@@ -23,7 +23,7 @@
 
           <remap from="rgbd_image" to="rgbd_image"/>
 
-          <param name="queue_size" type="int" value="10"/>
+          <param name="queue_size" type="int" value="1"/>
 
           <!-- RTAB-Map's parameters -->
           <param name="RGBD/AngularUpdate"        type="string" value="0.01"/>

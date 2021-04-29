@@ -213,6 +213,7 @@ def selectStartGoalPoints(ax, img):
 def main():
   print 'Loading map... with file \'', MAP_IMG,'\''
   img = imread(MAP_IMG, mode="L")
+  print(type(img))
 
   kernel = np.ones((3,3),np.uint8)
   img = cv2.dilate(img,kernel,iterations = 1)
