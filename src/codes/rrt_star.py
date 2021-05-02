@@ -192,7 +192,8 @@ class RrtStar:
     def selectStartGoalPoints(self, start, goal):
 
         if self.utils.is_inside_obs(start) :
-            print "start fail"
+            print "start fail "
+            print(start.x,start.y)
             return False
         else:
             self.s_start = start
@@ -201,6 +202,7 @@ class RrtStar:
 
         if self.utils.is_inside_obs(goal) :
             print "goal fail"
+            print(goal.x, goal.y)
             return False
         else:
             self.s_goal = goal

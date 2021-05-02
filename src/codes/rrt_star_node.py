@@ -43,6 +43,8 @@ class RRT_ROS:
         self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
         self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
+        self.rrt_star = RrtStar((0,0), (0,0), 10, 0.02, 100, 500)
+
 
     def debugging(self, rrt):
 
@@ -94,7 +96,7 @@ class RRT_ROS:
 
         kernel = np.ones((3,3),np.uint8)
         #self.img = cv2.erode(self.img,kernel,iterations = 2)
-        self.img = cv2.dilate(self.img,kernel,iterations = 2)
+        self.img = cv2.dilate(self.img,kernel,iterations = 1)
         self.img = 255 - self.img
 
         # specify a threshold 0-255
@@ -103,8 +105,10 @@ class RRT_ROS:
 
         self.img = 255 * (self.img  > threshold)
 
-        tarposex = +2.5 / 0.05
-        tarposey = -1.9 / 0.05
+        #robposex = 2.0 / 0.05
+        #robposey = 0.0 / 0.05
+        tarposex = +6.3 / 0.05
+        tarposey = -3.1 / 0.05
 
         #self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
         self.robot_target = np.array([tarposex - self.positionmap[0], tarposey - self.positionmap[1]])
@@ -112,35 +116,50 @@ class RRT_ROS:
         #print(self.robot_pose)
         print(self.robot_target)
 
+        print(self.width)
+        print(self.height)
+
         if self.Odometry:
 
             size = (np.shape(self.img))
+            self.rrt_star.env.img = self.img
+            self.rrt_star.utils.img = self.img
+            self.rrt_star.plotting.img = self.img
+            self.rrt_star.x_range = (0,size[1])
+            self.rrt_star.y_range = (0,size[0])
 
-            rrt.env.img = self.img
-            rrt.utils.img = self.img
-            rrt.plotting.img = self.img
-            rrt.x_range = (0,size[0])
-            rrt.y_range = (0,size[1])
+            self.rrt_star.env.x_range = self.rrt_star.x_range
+            self.rrt_star.env.y_range = self.rrt_star.y_range
 
-            rrt.env.x_range = rrt.x_range
-            rrt.env.y_range = rrt.y_range
-
-
-            path = rrt.planning()
+            x_start = self.robot_pose  # Starting node
+            x_goal = self.robot_target
+            #x_start = (18, 20)  # Starting node
+            #x_goal = (190, 125)
+            self.rrt_star.selectStartGoalPoints(Node(x_start), Node(x_goal) )
+            path = self.rrt_star.planning()
             if path is None:
                 print("Cannot find path")
             else:
                 print("found path!!")
+
+                odomcoor = np.array(path)
+                odomcoorx = np.array([odomcoor[:,0] + self.positionmap[0]])*0.05
+                odomcoory = np.array([odomcoor[:,1] + self.positionmap[1]])*0.05
+                odomcoor = np.append(odomcoorx , odomcoory, axis= 0)
+                path = odomcoor.T
+                print 'Final path:', odomcoor.T
+
+                self.send(path[::-1])
                 return path
 
             pass
 
 
-        NoneType = type(None)
-
-        if type(path) != NoneType:
-            self.send(path)
-        pass
+        # NoneType = type(None)
+        #
+        # if type(path) != NoneType:
+        #     self.send(path)
+        # pass
 
 
     def odometry_callback(self, data):
@@ -185,14 +204,14 @@ def main():
     rrt = RRT_ROS()
     x_start = (18, 8)  # Starting node
     x_goal = (125, 125)  # Goal node
-    rrt_star = RrtStar(x_start, x_goal, 100, 0.02, 100, 4000)
+
 
     print("Starting RRT Star Node ...")
 
     try:
-        while not rospy.is_shutdown():
-
-            rrt.debugging(rrt_star)
+        # while not rospy.is_shutdown():
+        #
+        #     rrt.debugging(rrt_star)
 
         rospy.spin()
     except KeyboardInterrupt:

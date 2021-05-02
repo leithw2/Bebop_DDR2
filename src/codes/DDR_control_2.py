@@ -80,7 +80,7 @@ class controller():
         w = 0
         #Error matrix (2,1)target
         angle = np.arctan2(target[1] - self.pose.y , target[0]- self.pose.x)
-        vel = .3
+        vel = .2
 
         if dist <= 0.1:
             self.state = 2
@@ -140,9 +140,9 @@ class controller():
         dist = numpy.linalg.norm(point - target)
         w = 0
         u = 0
-        vel = 1
+        vel = .5
 
-        if self.state == 2 and dist < 0.1:
+        if self.state == 2 and dist < 0.2:
             self.state = 0
 
             return
