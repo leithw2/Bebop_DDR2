@@ -16,7 +16,7 @@ from scipy.misc import imread
 import cv2
 from matplotlib import cm
 
-MAP_IMG = './maze.jpeg'
+MAP_IMG = './maze.jpg'
 
 
 class Utils:
@@ -24,62 +24,7 @@ class Utils:
         self.env = Env()
 
         self.delta = 0.5
-        self.obs_circle = self.env.obs_circle
-        self.obs_rectangle = self.env.obs_rectangle
-        self.obs_boundary = self.env.obs_boundary
         self.img = self.env.img
-
-
-    def get_obs_vertex(self):
-        delta = self.delta
-        obs_list = []
-
-        for (ox, oy, w, h) in self.obs_rectangle:
-            vertex_list = [[ox - delta, oy - delta],
-                           [ox + w + delta, oy - delta],
-                           [ox + w + delta, oy + h + delta],
-                           [ox - delta, oy + h + delta]]
-            obs_list.append(vertex_list)
-
-        return obs_list
-
-    def is_intersect_rec(self, start, end, o, d, a, b):
-        v1 = [o[0] - a[0], o[1] - a[1]]
-        v2 = [b[0] - a[0], b[1] - a[1]]
-        v3 = [-d[1], d[0]]
-
-        div = np.dot(v2, v3)
-
-        if div == 0:
-            return False
-
-        t1 = np.linalg.norm(np.cross(v2, v1)) / div
-        t2 = np.dot(v1, v3) / div
-
-        if t1 >= 0 and 0 <= t2 <= 1:
-            shot = Node((o[0] + t1 * d[0], o[1] + t1 * d[1]))
-            dist_obs = self.get_dist(start, shot)
-            dist_seg = self.get_dist(start, end)
-            if dist_obs <= dist_seg:
-                return True
-
-        return False
-
-    def is_intersect_circle_original(self, o, d, a, r):
-        d2 = np.dot(d, d)
-        delta = self.delta
-
-        if d2 == 0:
-            return False
-
-        t = np.dot([a[0] - o[0], a[1] - o[1]], d) / d2
-
-        if 0 <= t <= 1:
-            shot = Node((o[0] + t * d[0], o[1] + t * d[1]))
-            if self.is_inside_obs(shot):
-                return True
-
-        return False
 
     def is_intersect_circle(self, start, end):
 
@@ -92,7 +37,7 @@ class Utils:
             shot = Node((o[0] + t * d[0], o[1] + t * d[1]))
             t = t + self.delta
             if self.get_dist(shot, end) <= self.delta:
-                break
+                return False
             #print(int(shot.x), int(shot.y))
             #print(self.get_dist(shot, end))
             if self.is_inside_obs(shot):
@@ -106,48 +51,6 @@ class Utils:
 
         if self.is_intersect_circle(start, end):
             return True
-
-        return False
-
-    def is_collision_original(self, start, end):
-        if self.is_inside_obs(start) or self.is_inside_obs(end):
-            return True
-
-        o, d = self.get_ray(start, end)
-        obs_vertex = self.get_obs_vertex()
-
-        for (v1, v2, v3, v4) in obs_vertex:
-            if self.is_intersect_rec(start, end, o, d, v1, v2):
-                return True
-            if self.is_intersect_rec(start, end, o, d, v2, v3):
-                return True
-            if self.is_intersect_rec(start, end, o, d, v3, v4):
-                return True
-            if self.is_intersect_rec(start, end, o, d, v4, v1):
-                return True
-
-        for (x, y, r) in self.obs_circle:
-            if self.is_intersect_circle(o, d, [x, y], r):
-                return True
-
-        return False
-
-    def is_inside_obs_original(self, node):
-        delta = self.delta
-
-        for (x, y, r) in self.obs_circle:
-            if math.hypot(node.x - x, node.y - y) <= r + delta:
-                return True
-
-        for (x, y, w, h) in self.obs_rectangle:
-            if 0 <= node.x - (x - delta) <= w + 2 * delta \
-                    and 0 <= node.y - (y - delta) <= h + 2 * delta:
-                return True
-
-        for (x, y, w, h) in self.obs_boundary:
-            if 0 <= node.x - (x - delta) <= w + 2 * delta \
-                    and 0 <= node.y - (y - delta) <= h + 2 * delta:
-                return True
 
         return False
 
@@ -173,12 +76,9 @@ class Plotting:
     def __init__(self, x_start, x_goal):
         self.xI, self.xG = x_start, x_goal
         self.env = Env()
-        self.obs_bound = self.env.obs_boundary
-        self.obs_circle = self.env.obs_circle
-        self.obs_rectangle = self.env.obs_rectangle
         self.img = self.env.img
 
-    def animation(self, nodelist, path, name, animation=True):
+    def animation(self, nodelist, path, name, animation=False):
         self.plot_grid(name)
         self.plot_visited(nodelist, animation)
         self.plot_path(path)
@@ -191,43 +91,13 @@ class Plotting:
     def plot_grid(self, name):
         fig, ax = plt.subplots()
 
-        # for (ox, oy, w, h) in self.obs_bound:
-        #     ax.add_patch(
-        #         patches.Rectangle(
-        #             (ox, oy), w, h,
-        #             edgecolor='black',
-        #             facecolor='black',
-        #             fill=True
-        #         )
-        #     )
-        #
-        # for (ox, oy, w, h) in self.obs_rectangle:
-        #     ax.add_patch(
-        #         patches.Rectangle(
-        #             (ox, oy), w, h,
-        #             edgecolor='black',
-        #             facecolor='gray',
-        #             fill=True
-        #         )
-        #     )
-        #
-        # for (ox, oy, r) in self.obs_circle:
-        #     ax.add_patch(
-        #         patches.Circle(
-        #             (ox, oy), r,
-        #             edgecolor='black',
-        #             facecolor='gray',
-        #             fill=True
-        #         )
-        #     )
-
         plt.plot(self.xI[0], self.xI[1], "bs", linewidth=3)
         plt.plot(self.xG[0], self.xG[1], "gs", linewidth=3)
 
         plt.title(name)
         plt.axis("equal")
-        plt.imshow(self.img, cmap=cm.Greys_r)
 
+        plt.imshow(self.img, cmap=cm.Greys_r)
         #plt.draw()
 
     @staticmethod
@@ -281,59 +151,16 @@ class Env:
     def __init__(self):
 
         img = imread(MAP_IMG, mode="L")
-        print(type(img))
-
         kernel = np.ones((3,3),np.uint8)
-        img = cv2.dilate(img,kernel,iterations = 1)
-        img = cv2.erode(img,kernel,iterations = 1)
-        # fig = plt.gcf()
-        # fig.clf()
-        #ax = fig.add_subplot(1, 1, 1)
-        #ax.imshow(img, cmap=cm.Greys_r)
-        #ax.axis('image')
-        #plt.draw()
+        #img = cv2.dilate(img,kernel,iterations = 2)
+        img = cv2.erode(img,kernel,iterations = 2)
         self.img = img
 
         self.x_range = (0, 50)
         self.y_range = (0, 30)
-        self.x_range = (0, 529)
-        self.y_range = (0, 542)
 
-        self.obs_boundary = self.obs_boundary()
-        self.obs_circle = self.obs_circle()
-        self.obs_rectangle = self.obs_rectangle()
-
-    @staticmethod
-    def obs_boundary():
-        obs_boundary = [
-            [0, 0, 1, 30],
-            [0, 30, 50, 1],
-            [1, 0, 50, 1],
-            [50, 1, 1, 30]
-        ]
-        return obs_boundary
-
-    @staticmethod
-    def obs_rectangle():
-        obs_rectangle = [
-            [14, 12, 8, 2],
-            [18, 22, 8, 3],
-            [26, 7, 2, 12],
-            [32, 14, 10, 2]
-        ]
-        return obs_rectangle
-
-    @staticmethod
-    def obs_circle():
-        obs_cir = [
-            [7, 12, 3],
-            [46, 20, 2],
-            [15, 5, 2],
-            [37, 7, 3],
-            [37, 23, 3]
-        ]
-
-        return obs_cir
+        self.x_range = (0, 225)
+        self.y_range = (0, 225)
 
 class Node:
     def __init__(self, n):
@@ -345,6 +172,7 @@ class Node:
 class RrtStar:
     def __init__(self, x_start, x_goal, step_len,
                  goal_sample_rate, search_radius, iter_max):
+
         self.s_start = Node(x_start)
         self.s_goal = Node(x_goal)
         self.step_len = step_len
@@ -361,34 +189,56 @@ class RrtStar:
         self.x_range = self.env.x_range
         self.y_range = self.env.y_range
 
-        # self.x_range = (0, 255)
-        # self.y_range = (0, 255)
+    def selectStartGoalPoints(self, start, goal):
 
-        self.obs_circle = self.env.obs_circle
-        self.obs_rectangle = self.env.obs_rectangle
-        self.obs_boundary = self.env.obs_boundary
+        if self.utils.is_inside_obs(start) :
+            print "start fail"
+            return False
+        else:
+            self.s_start = start
+            self.vertex = [self.s_start]
+            self.plotting.xI = (self.s_start.x, self.s_start.y)
+
+        if self.utils.is_inside_obs(goal) :
+            print "goal fail"
+            return False
+        else:
+            self.s_goal = goal
+            self.plotting.xG =  (self.s_goal.x, self.s_goal.y)
+
+        return True
+
 
     def planning(self):
-        for k in range(self.iter_max):
-            node_rand = self.generate_random_node(self.goal_sample_rate)
-            node_near = self.nearest_neighbor(self.vertex, node_rand)
-            node_new = self.new_state(node_near, node_rand)
+        #plt.imshow(self.env.img, cmap=cm.Greys_r)
+        if self.selectStartGoalPoints(self.s_start, self.s_goal):
+            self.plotting.img = self.env.img
+            for k in range(self.iter_max):
+                node_rand = self.generate_random_node(self.goal_sample_rate)
+                node_near = self.nearest_neighbor(self.vertex, node_rand)
+                node_new = self.new_state(node_near, node_rand)
 
-            if k % 500 == 0:
-                print(k)
+                if k % 500 == 0:
+                    print(k)
 
-            if node_new and not self.utils.is_collision(node_near, node_new):
-                neighbor_index = self.find_near_neighbor(node_new)
-                self.vertex.append(node_new)
+                if node_new and not self.utils.is_collision(node_near, node_new):
+                    neighbor_index = self.find_near_neighbor(node_new)
+                    self.vertex.append(node_new)
 
-                if neighbor_index:
-                    self.choose_parent(node_new, neighbor_index)
-                    self.rewire(node_new, neighbor_index)
+                    if neighbor_index:
+                        self.choose_parent(node_new, neighbor_index)
+                        self.rewire(node_new, neighbor_index)
 
-        index = self.search_goal_parent()
-        self.path = self.extract_path(self.vertex[index])
+            index = self.search_goal_parent()
 
-        self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
+            if index != []:
+                self.path = self.extract_path(self.vertex[index])
+                self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
+                return self.path
+            else:
+                print("fail")
+
+
 
     def new_state(self, node_start, node_goal):
         dist, theta = self.get_distance_and_angle(node_start, node_goal)
@@ -424,8 +274,10 @@ class RrtStar:
 
             if cost_list != []:
                 return node_index[int(np.argmin(cost_list))]
+            else:
+                return []
 
-        return len(self.vertex) - 1
+        return []
 
     def get_new_cost(self, node_start, node_end):
         dist, _ = self.get_distance_and_angle(node_start, node_end)
@@ -501,10 +353,10 @@ class RrtStar:
 
 def main():
     x_start = (18, 8)  # Starting node
-    x_goal = (265, 265)  # Goal node
+    x_goal = (146, 31)  # Goal node
 
 
-    rrt_star = RrtStar(x_start, x_goal, 500, 0.02, 20, 80000)
+    rrt_star = RrtStar(x_start, x_goal, 10, 0.2, 200, 7000)
     rrt_star.planning()
 
 
