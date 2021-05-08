@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import roslib
+import tf2_ros
 import rospy
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
@@ -43,7 +44,23 @@ class RRT_ROS:
         self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
         self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
-        self.rrt_star = RrtStar((0,0), (0,0), 10, 0.02, 100, 500)
+        self.rrt_star = RrtStar((0,0), (0,0), 10, 0.02, 100, 4000)
+        self.tfBuffer = tf2_ros.Buffer()
+        self.listener = tf2_ros.TransformListener(self.tfBuffer)
+        self.positionmap = [0,0]
+
+
+
+    def example_function(self):
+
+        try:
+            print("trying..")
+            trans = self.tfBuffer.lookup_transform('map', 'odom', rospy.Time())
+            print("trying.. end")
+            print(trans)
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            pass
+
 
 
     def debugging(self, rrt):
@@ -86,6 +103,7 @@ class RRT_ROS:
 
         path=[]
 
+        self.example_function()
         map = np.array(data.data)
         self.width = data.info.width
         self.height = data.info.height
@@ -96,7 +114,7 @@ class RRT_ROS:
 
         kernel = np.ones((3,3),np.uint8)
         #self.img = cv2.erode(self.img,kernel,iterations = 2)
-        self.img = cv2.dilate(self.img,kernel,iterations = 1)
+        self.img = cv2.dilate(self.img,kernel,iterations = 2)
         self.img = 255 - self.img
 
         # specify a threshold 0-255
@@ -107,8 +125,8 @@ class RRT_ROS:
 
         #robposex = 2.0 / 0.05
         #robposey = 0.0 / 0.05
-        tarposex = +6.3 / 0.05
-        tarposey = -3.1 / 0.05
+        tarposex = +3.9 / 0.05
+        tarposey = -1.0 / 0.05
 
         #self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
         self.robot_target = np.array([tarposex - self.positionmap[0], tarposey - self.positionmap[1]])
