@@ -238,6 +238,8 @@ class RrtStar:
                 self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
                 return self.path
             else:
+                self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
+                
                 print("fail")
 
 

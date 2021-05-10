@@ -19,7 +19,7 @@ from PIL import Image as im
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "")
 
-MAP_IMG = './maze.jpg' # Black and white image for a map
+MAP_IMG = './test_map4.png' # Black and white image for a map
 
 try:
     from rrt_star import RrtStar, Node
@@ -48,6 +48,9 @@ class RRT_ROS:
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.positionmap = [0,0]
+        self.object_target =Node([190,190])
+        self.x_start = Node([0,0])
+        self.x_goal = Node([0,0])
 
 
 
@@ -63,7 +66,7 @@ class RRT_ROS:
 
 
 
-    def debugging(self, rrt):
+    def debugging(self):
 
 
         self.robot_pose = np.array([10,10])
@@ -72,32 +75,88 @@ class RRT_ROS:
 
         self.img = imread(MAP_IMG, mode="L")
 
-        kernel = np.ones((3,3),np.uint8)
+        kernel = np.ones((2,2),np.uint8)
         self.img = cv2.dilate(self.img,kernel,iterations = 1)
-        self.img = cv2.erode(self.img,kernel,iterations = 1)
+        self.img = cv2.erode(self.img,kernel,iterations = 2)
 
         size = (np.shape(self.img))
+        self.rrt_star.env.img = self.img
+        self.rrt_star.utils.img = self.img
+        self.rrt_star.plotting.img = self.img
+        self.rrt_star.x_range = (0,size[1])
+        self.rrt_star.y_range = (0,size[0])
 
-        rrt.env.img = self.img
-        rrt.utils.img = self.img
-        rrt.plotting.img = self.img
-        rrt.x_range = (0,size[0])
-        rrt.y_range = (0,size[1])
+        self.rrt_star.env.x_range = self.rrt_star.x_range
+        self.rrt_star.env.y_range = self.rrt_star.y_range
 
-        rrt.env.x_range = rrt.x_range
-        rrt.env.y_range = rrt.y_range
+        robposex = 35.0
+        robposey = 28.0
 
-        x_start = (18, 8)  # Starting node
-        x_goal = (190, 125)
+        tarpose = self.getTargetRandomPose()
+        print("target pose")
+        print(tarpose.x, tarpose.y)
+        tarposex = tarpose.x
+        tarposey = tarpose.y
 
-        rrt.selectStartGoalPoints(Node(x_start), Node(x_goal) )
+        self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
+        self.robot_target = np.array([tarposex - self.positionmap[0], tarposey - self.positionmap[1]])
 
-        path = rrt.planning()
+
+        self.x_start = Node(self.robot_pose)  # Starting node
+        self.x_goal = Node(self.robot_target)
+
+        self.rrt_star.selectStartGoalPoints(self.x_start, self.x_goal )
+        path = self.rrt_star.planning()
+
+        #self.rrt.selectStartGoalPoints(Node(x_start), Node(x_goal) )
+
         if path is None:
             print("Cannot find path")
         else:
             print("found path!!")
             return path
+
+    def getTargetRandomPose(self):
+        delta = 5
+        min_dist = sys.maxint
+        node_dist_min = []
+
+        for k in range(5000):
+            node = Node((np.random.randint(self.rrt_star.x_range[0] + delta, self.rrt_star.x_range[1] - delta),
+                         np.random.randint(self.rrt_star.y_range[0] + delta, self.rrt_star.y_range[1] - delta)))
+
+            if(self.img[int(node.y)][int(node.x)] >= 200):
+                my_list1 = np.array(self.neighbors(5, node.y, node.x))
+                print(my_list1)
+
+
+                if((my_list1 <= 100).any()): #if black
+                    print("continue")
+                    continue
+
+                if((my_list1 >= 100).any() and (my_list1 <= 200).any()):
+                    robotToNode = self.rrt_star.utils.get_dist(self.x_start,node)
+                    nodeToObject = self.rrt_star.utils.get_dist(node, self.object_target)
+                    print("Grey")
+                    if (robotToNode + nodeToObject < min_dist):
+                        min_dist = robotToNode + nodeToObject #if gray
+                        print(my_list1)
+                        print(node.x, node.y)
+                        print(min_dist)
+                        node_dist_min = node
+
+
+        if node_dist_min != []:
+            return node_dist_min
+        else:
+            print("fail no point avalible")
+
+
+    def neighbors(self, radius, rowNumber, columnNumber):
+        a = self.img
+        return [[a[i][j] if  i >= 0 and i < len(a) and j >= 0 and j < len(a[0]) else 0
+            for j in range(columnNumber-1-radius, columnNumber+radius)]
+                for i in range(rowNumber-1-radius, rowNumber+radius)]
 
     def callback(self, data):
 
@@ -149,11 +208,11 @@ class RRT_ROS:
             self.rrt_star.env.x_range = self.rrt_star.x_range
             self.rrt_star.env.y_range = self.rrt_star.y_range
 
-            x_start = self.robot_pose  # Starting node
-            x_goal = self.robot_target
+            self.x_start = Node(self.robot_pose)  # Starting node
+            self.x_goal = Node(self.robot_target)
             #x_start = (18, 20)  # Starting node
             #x_goal = (190, 125)
-            self.rrt_star.selectStartGoalPoints(Node(x_start), Node(x_goal) )
+            self.rrt_star.selectStartGoalPoints(self.x_start , self.x_goal )
             path = self.rrt_star.planning()
             if path is None:
                 print("Cannot find path")
@@ -229,7 +288,9 @@ def main():
     try:
         # while not rospy.is_shutdown():
         #
-        #     rrt.debugging(rrt_star)
+        #
+
+        rrt.debugging()
 
         rospy.spin()
     except KeyboardInterrupt:
