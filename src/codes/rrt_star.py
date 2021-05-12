@@ -97,8 +97,10 @@ class Plotting:
         plt.title(name)
         plt.axis("equal")
 
+
         plt.imshow(self.img, cmap=cm.Greys_r)
-        #plt.draw()
+        #plt.pause(0.001)
+        plt.draw()
 
     @staticmethod
     def plot_visited(nodelist, animation):
@@ -189,6 +191,7 @@ class RrtStar:
         self.x_range = self.env.x_range
         self.y_range = self.env.y_range
 
+
     def selectStartGoalPoints(self, start, goal):
 
         if self.utils.is_inside_obs(start) :
@@ -239,7 +242,7 @@ class RrtStar:
                 return self.path
             else:
                 self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
-                
+
                 print("fail")
 
 
