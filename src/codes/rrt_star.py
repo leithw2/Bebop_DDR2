@@ -78,6 +78,7 @@ class Plotting:
         self.env = Env()
         self.img = self.env.img
 
+
     def animation(self, nodelist, path, name, animation=False):
         self.plot_grid(name)
         self.plot_visited(nodelist, animation)
@@ -89,7 +90,7 @@ class Plotting:
         self.plot_path(path)
 
     def plot_grid(self, name):
-        fig, ax = plt.subplots()
+        self.fig, ax = plt.subplots()
 
         plt.plot(self.xI[0], self.xI[1], "bs", linewidth=3)
         plt.plot(self.xG[0], self.xG[1], "gs", linewidth=3)
@@ -152,11 +153,11 @@ class Plotting:
 class Env:
     def __init__(self):
 
-        img = imread(MAP_IMG, mode="L")
-        kernel = np.ones((3,3),np.uint8)
-        #img = cv2.dilate(img,kernel,iterations = 2)
-        img = cv2.erode(img,kernel,iterations = 2)
-        self.img = img
+        # img = imread(MAP_IMG, mode="L")
+        # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+        # #img = cv2.dilate(img,kernel,iterations = 2)
+        # img = cv2.erode(img,kernel,iterations = 2)
+        self.img = []
 
         self.x_range = (0, 50)
         self.y_range = (0, 30)
@@ -241,7 +242,7 @@ class RrtStar:
                 self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
                 return self.path
             else:
-                self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
+                #self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
 
                 print("fail")
 
@@ -295,8 +296,8 @@ class RrtStar:
         delta = self.utils.delta
 
         if np.random.random() > goal_sample_rate:
-            return Node((np.random.uniform(self.x_range[0] + delta, self.x_range[1] - delta),
-                         np.random.uniform(self.y_range[0] + delta, self.y_range[1] - delta)))
+            return Node((np.random.randint(self.x_range[0] + delta, self.x_range[1] - delta),
+                         np.random.randint(self.y_range[0] + delta, self.y_range[1] - delta)))
 
         return self.s_goal
 

@@ -128,7 +128,8 @@ float32 cpu_percent     # Process CPU utilization as a percentage
     unpack serialized message in str into this message instance
     :param str: byte array of serialized message, ``str``
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.header is None:
         self.header = std_msgs.msg.Header()
@@ -239,7 +240,8 @@ float32 cpu_percent     # Process CPU utilization as a percentage
     :param str: byte array of serialized message, ``str``
     :param numpy: numpy python module
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.header is None:
         self.header = std_msgs.msg.Header()

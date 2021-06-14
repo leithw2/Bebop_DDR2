@@ -125,7 +125,8 @@ float64 y
     unpack serialized message in str into this message instance
     :param str: byte array of serialized message, ``str``
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.polygon is None:
         self.polygon = mav_planning_msgs.msg.PolygonWithHolesStamped()
@@ -219,7 +220,8 @@ float64 y
     :param str: byte array of serialized message, ``str``
     :param numpy: numpy python module
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.polygon is None:
         self.polygon = mav_planning_msgs.msg.PolygonWithHolesStamped()
@@ -359,7 +361,8 @@ bool success # True on success, false on polygon error.
     unpack serialized message in str into this message instance
     :param str: byte array of serialized message, ``str``
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       end = 0
       start = end
@@ -389,7 +392,8 @@ bool success # True on success, false on polygon error.
     :param str: byte array of serialized message, ``str``
     :param numpy: numpy python module
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       end = 0
       start = end

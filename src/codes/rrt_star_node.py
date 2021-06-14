@@ -2,6 +2,7 @@
 import roslib
 import tf2_ros
 import rospy
+import tf2_geometry_msgs
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
@@ -34,36 +35,39 @@ class RRT_ROS:
     def __init__(self):
 
         self.Odometry = False
-        self.rate = rospy.Rate(1)
+        self.rate = rospy.Rate(0.05)
         #########
-        self.debug_image = imread(MAP_IMG,mode="L")
+        #self.debug_image = imread(MAP_IMG,mode="L")
+        #self.img2 = cv2.cvtColor(self.debug_image,cv2.COLOR_RGB2BGR)
         ########
 
         self.bridge = CvBridge()
 
-        self.rrt_star = RrtStar((0,0), (0,0), 5, 0.02, 100, 1000)
+        self.rrt_star = RrtStar((0,0), (0,0), 15, 0.2, 500, 1000)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.positionmap = [0,0]
-        self.object_target =Node([300,-300])
+        self.object_target = Node([7/0.05,-5/0.05])
         self.x_start = Node([0,0])
         self.x_goal = Node([0,0])
 
-        self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid,self.callback)
+        self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid, self.callback, queue_size=1, buff_size=1)
         self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
         self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
 
-
-
-
-    def example_function(self):
+    def example_function(self, pose, to, from_):
 
         try:
-            print("trying..")
-            trans = self.tfBuffer.lookup_transform('map', 'odom', rospy.Time())
-            print("trying.. end")
-            print(trans)
+            #print("trying..")
+            trans = self.tfBuffer.lookup_transform(to, from_, rospy.Time())
+            #print("trying.. end")
+            #print(trans)
+            ps = PoseStamped()
+            ps.pose = pose
+            ps.header.frame_id = 'odom'
+            return tf2_geometry_msgs.do_transform_pose(ps, trans)
+
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
             pass
 
@@ -73,7 +77,7 @@ class RRT_ROS:
 
 
         self.robot_pose = np.array([10,10])
-        self.robot_target = np.array([190,100])
+        self.robot_target = np.array([100,190])
         self.positionmap = [0,0]
 
         self.img = imread(MAP_IMG, mode="L")
@@ -150,23 +154,31 @@ class RRT_ROS:
                     continue
 
                 if((my_list1 > 100).any() and (my_list1 <= 200).any()):
+
+                    # if ((node.x >= (self.object_target.x - delta)) and (node.x < (self.object_target.x + delta))):
+                    #     if ((node.y >= (self.object_target.y - delta)) and (node.y < (self.object_target.y + delta))):
+                    #         return self.object_target
+
                     robotToNode = self.rrt_star.utils.get_dist(self.x_start,node)
                     nodeToObject = self.rrt_star.utils.get_dist(node, self.object_target)
 
-                    if robotToNode < delta*15:
+                    if robotToNode < delta * 15 or robotToNode >= delta * 500 :
+                        print("node ", node.y, node.x)
+                        print("to short", robotToNode)
                         continue
 
                     if (robotToNode + nodeToObject < min_dist):
                         min_dist = robotToNode + nodeToObject #if gray
                         #print(my_list1)
                         #print(node.x, node.y)
-                        #print(min_dist)
+                        print("shortest",min_dist)
                         node_dist_min = node
 
 
 
         if node_dist_min != []:
-            #print(self.rrt_star.utils.get_dist(self.x_start,node_dist_min))
+            print("shortest_ node ",node_dist_min.y, node_dist_min.x)
+            print("shortest",self.rrt_star.utils.get_dist(self.x_start,node_dist_min))
             return node_dist_min
         else:
             print("fail no point avalible")
@@ -185,81 +197,85 @@ class RRT_ROS:
                 self.img[i][j] = 0
 
 
+    # def callback(self, data):
+    #     pass
+
     def callback(self, data):
 
-        path=[]
-
-        #self.example_function()
-        map = np.array(data.data)
-        self.width = data.info.width
-        self.height = data.info.height
-        size = [self.height,self.width ]
-
-        self.positionmap = [round(data.info.origin.position.x/0.05), round(data.info.origin.position.y/0.05)]
-
-        self.img = np.array(np.uint8(np.resize(map, [self.height,self.width])))
-
-
-
-        self.img = np.where(self.img == 255, 102, self.img)
-        self.img = np.where(self.img == 0, 255, self.img)
-
-        self.img = np.where(self.img == 100, 0, self.img)
-
-        #print(self.img)
-        kernel = np.ones((3,3),np.uint8)
-        self.img = cv2.erode(self.img,kernel,iterations = 1)
-        #self.img = cv2.dilate(self.img,kernel,iterations = 1)
-
-        #plt.imshow(self.img, cmap=cm.Greys_r)
-        # specify a threshold 0-255
-        #threshold = 200
-        # make all pixels < threshold black
-
-        #self.img = 255 * (self.img  > threshold)
-
-        #robposex = 2.0 / 0.05
-        #robposey = 0.0 / 0.05
-        #tarposex = +3.9 / 0.05
-        #tarposey = -1.0 / 0.05
-        self.rrt_star.env.img = self.img
-        self.rrt_star.utils.img = self.img
-        self.rrt_star.plotting.img = self.img
-        self.rrt_star.x_range = (0,size[1])
-        self.rrt_star.y_range = (0,size[0])
-
-        self.rrt_star.env.x_range = self.rrt_star.x_range
-        self.rrt_star.env.y_range = self.rrt_star.y_range
-
-        #print(self.rrt_star.x_range)
-        #print(self.rrt_star.y_range)
-
-        start_time = time.time()
-
-        tarpose = self.getTargetRandomPose()
-
-        #print("Tiempo: ", time.time() - start_time)
-
-        #print("target pose")
-        #print(tarpose.x, tarpose.y)
-        if tarpose != []:
-            tarposex = tarpose.x
-            tarposey = tarpose.y
-        else:
-            return
-        #tarposex = 0
-        #tarposey = 0
-
-        #self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
-        self.robot_target = np.array([tarposex, tarposey])
-
-        #print(self.robot_pose)
-        print(self.robot_target)
-
-        print(self.width)
-        print(self.height)
 
         if self.Odometry:
+            path=[]
+
+            #self.example_function()
+            map = np.array(data.data)
+            self.width = data.info.width
+            self.height = data.info.height
+            size = [self.height,self.width ]
+
+            self.positionmap = [round(data.info.origin.position.x/0.05), round(data.info.origin.position.y/0.05)]
+
+            self.img = np.array(np.uint8(np.resize(map, [self.height,self.width])))
+
+
+
+            self.img = np.where(self.img == 255, 102, self.img)
+            self.img = np.where(self.img == 0, 255, self.img)
+
+            self.img = np.where(self.img == 100, 0, self.img)
+
+            #print(self.img)
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+
+            self.img = cv2.erode(self.img,kernel,iterations = 1)
+            #self.img = cv2.dilate(self.img,kernel,iterations = 1)
+
+            #plt.imshow(self.img, cmap=cm.Greys_r)
+            # specify a threshold 0-255
+            #threshold = 200
+            # make all pixels < threshold black
+
+            #self.img = 255 * (self.img  > threshold)
+
+            #robposex = 2.0 / 0.05
+            #robposey = 0.0 / 0.05
+            #tarposex = +3.9 / 0.05
+            #tarposey = -1.0 / 0.05
+            self.rrt_star.env.img = self.img
+            self.rrt_star.utils.img = self.img
+            self.rrt_star.plotting.img = self.img
+            self.rrt_star.x_range = (0,size[1])
+            self.rrt_star.y_range = (0,size[0])
+
+            self.rrt_star.env.x_range = self.rrt_star.x_range
+            self.rrt_star.env.y_range = self.rrt_star.y_range
+
+            #print(self.rrt_star.x_range)
+            #print(self.rrt_star.y_range)
+
+            start_time = time.time()
+
+            tarpose = self.getTargetRandomPose()
+
+            #print("Tiempo: ", time.time() - start_time)
+
+            #print("target pose")
+            #print(tarpose.x, tarpose.y)
+            if tarpose != []:
+                tarposex = tarpose.x
+                tarposey = tarpose.y
+            else:
+                return
+            #tarposex = 0
+            #tarposey = 0
+
+            #self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
+            self.robot_target = np.array([tarposex, tarposey])
+
+            #print(self.robot_pose)
+            print(self.robot_target)
+
+            print(self.width)
+            print(self.height)
 
             size = (np.shape(self.img))
             self.rrt_star.env.img = self.img
@@ -280,9 +296,9 @@ class RRT_ROS:
 
             if path is None:
                 print("Cannot find path")
-                for i in range(10):
+                for i in range(50):
 
-                    self.neighborsToBlack(3,tarposey,tarposex)
+                    self.neighborsToBlack(5,tarposey,tarposex)
                     #plt.imshow(self.img, cmap=cm.Greys_r)
                     tarpose = self.getTargetRandomPose()
 
@@ -296,6 +312,7 @@ class RRT_ROS:
                     self.x_goal = Node(self.robot_target)
                     self.rrt_star.selectStartGoalPoints(self.x_start , self.x_goal )
                     path = self.rrt_star.planning()
+
                     if path is not None:
                         break
 
@@ -310,6 +327,17 @@ class RRT_ROS:
                 print 'Final path:', odomcoor.T
 
                 self.send(path[::-1])
+                rospy.signal_shutdown("End node")
+
+                img2 = np.fromstring(self.rrt_star.plotting.fig.canvas.tostring_rgb(), dtype=np.uint8,
+                      sep='')
+
+                ncols, nrows = self.rrt_star.plotting.fig.canvas.get_width_height()
+                img2  = img2.reshape(self.rrt_star.plotting.fig.canvas.get_width_height()[::-1] + (3,))
+
+                self.img2 = cv2.cvtColor(img2,cv2.COLOR_RGB2BGR)
+                self.send_image_path(self.img2)
+
                 return path
 
             pass
@@ -323,10 +351,19 @@ class RRT_ROS:
 
 
     def odometry_callback(self, data):
-        self.Odometry = True
+        pose = []
         self.actual_pose = data
-        pose = data.pose.pose.position
-        self.robot_pose = np.array([pose.x /0.05 - self.positionmap[0], pose.y/0.05  - self.positionmap[1]])
+
+        pose = self.example_function(data.pose.pose, 'map', 'odom')
+        if pose is not None:
+            self.Odometry = True
+            pose = pose.pose.position
+            self.robot_pose = np.array([pose.x /0.05 - self.positionmap[0], pose.y/0.05  - self.positionmap[1]])
+        else:
+            self.Odometry = False
+        #print(pose.x,pose.y)
+
+        #self.example_function(data.pose.pose, 'map', 'odom')
 
     def send_image_path(self, path_image):
 
@@ -370,7 +407,7 @@ def main():
 
     try:
         # while not rospy.is_shutdown():
-        #
+        #     rrt.send_image_path(rrt.img2)
         #
 
         #rrt.debugging()
@@ -380,7 +417,7 @@ def main():
         print("Shutting down")
 
 
-        v2.destroyAllWindows()
+        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()

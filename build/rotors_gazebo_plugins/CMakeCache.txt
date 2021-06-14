@@ -860,7 +860,7 @@ ignition-transport4_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/ignition-transport4
 jsoncpp_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/jsoncpp
 
 //Path to a library.
-lib:FILEPATH=/home/laptop/catkin_ws/devel/.private/rotors_control/lib/libroll_pitch_yawrate_thrust_controller.so
+lib:FILEPATH=/opt/ros/melodic/lib/libroscpp_serialization.so
 
 //The directory containing a CMake configuration file for mav_msgs.
 mav_msgs_DIR:PATH=/home/laptop/catkin_ws/devel/share/mav_msgs/cmake
@@ -890,7 +890,7 @@ octomap_DIR:PATH=/opt/ros/melodic/share/octomap
 octomap_msgs_DIR:PATH=/opt/ros/melodic/share/octomap_msgs/cmake
 
 //The directory containing a CMake configuration file for octomap_ros.
-octomap_ros_DIR:PATH=/opt/ros/melodic/share/octomap_ros/cmake
+octomap_ros_DIR:PATH=octomap_ros_DIR-NOTFOUND
 
 //Path to a library.
 onelib:FILEPATH=/usr/lib/x86_64-linux-gnu/libsdformat.so

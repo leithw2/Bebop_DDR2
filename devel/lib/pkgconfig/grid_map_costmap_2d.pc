@@ -1,0 +1,1 @@
+/home/laptop/catkin_ws/devel/.private/grid_map_costmap_2d/lib/pkgconfig/grid_map_costmap_2d.pc

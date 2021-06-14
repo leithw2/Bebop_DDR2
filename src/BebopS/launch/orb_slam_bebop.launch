@@ -132,14 +132,14 @@
    <!-- Launch the camera controller -->
    <rosparam command="load"
             file="$(find bebop_simulator)/resource/cam.yaml"
-            ns="bebop/camera_controller" />
+            ns="/camera_controller2" />
      <rosparam command="load"
             file="$(find bebop_simulator)/resource/joints.yaml"
-            ns="bebop/joint_state_controller" />
+            ns="/joint_state_controller" />
 
    <node name="bebop_controller_spawner" pkg="controller_manager" type="spawner"
     args="
-	  bebop/camera_controller
-	  bebop/joint_state_controller
+	  /camera_controller2
+	  /joint_state_controller
           --shutdown-timeout 3"/>
 </launch>

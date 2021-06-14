@@ -1,0 +1,52 @@
+[
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d",
+  "command": "/usr/bin/c++ -DEIGEN_DENSEBASE_PLUGIN=\\\"grid_map_core/eigen_plugins/DenseBasePlugin.hpp\\\" -DEIGEN_FUNCTORS_PLUGIN=\\\"grid_map_core/eigen_plugins/FunctorsPlugin.hpp\\\" -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"grid_map_costmap_2d\\\" -I/home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/include -I/usr/src/googletest/googletest/include -isystem /home/laptop/catkin_ws/src/grid_map-master/grid_map_core/include -isystem /opt/ros/melodic/include -isystem /opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -isystem /usr/local/include/eigen3 -isystem /usr/include/eigen3 -std=c++11  -pthread -Wall -Wextra -Wpedantic -o CMakeFiles/grid_map_costmap_2d-test.dir/test/test_grid_map_costmap_2d.cpp.o -c /home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/test/test_grid_map_costmap_2d.cpp",
+  "file": "/home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/test/test_grid_map_costmap_2d.cpp"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d",
+  "command": "/usr/bin/c++ -DEIGEN_DENSEBASE_PLUGIN=\\\"grid_map_core/eigen_plugins/DenseBasePlugin.hpp\\\" -DEIGEN_FUNCTORS_PLUGIN=\\\"grid_map_core/eigen_plugins/FunctorsPlugin.hpp\\\" -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"grid_map_costmap_2d\\\" -I/home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/include -I/usr/src/googletest/googletest/include -isystem /home/laptop/catkin_ws/src/grid_map-master/grid_map_core/include -isystem /opt/ros/melodic/include -isystem /opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -isystem /usr/local/include/eigen3 -isystem /usr/include/eigen3 -std=c++11  -pthread -Wall -Wextra -Wpedantic -o CMakeFiles/grid_map_costmap_2d-test.dir/test/Costmap2DConverterTest.cpp.o -c /home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/test/Costmap2DConverterTest.cpp",
+  "file": "/home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/test/Costmap2DConverterTest.cpp"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/gtest/googlemock",
+  "command": "/usr/bin/c++ -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgmock_main_EXPORTS -I/usr/src/googletest/googlemock/include -I/usr/src/googletest/googlemock -I/usr/src/googletest/googletest/include -I/usr/src/googletest/googletest -std=c++11  -fPIC -std=c++11  -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -o CMakeFiles/gmock_main.dir/__/googletest/src/gtest-all.cc.o -c /usr/src/googletest/googletest/src/gtest-all.cc",
+  "file": "/usr/src/googletest/googletest/src/gtest-all.cc"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/gtest/googlemock",
+  "command": "/usr/bin/c++ -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgmock_main_EXPORTS -I/usr/src/googletest/googlemock/include -I/usr/src/googletest/googlemock -I/usr/src/googletest/googletest/include -I/usr/src/googletest/googletest -std=c++11  -fPIC -std=c++11  -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -o CMakeFiles/gmock_main.dir/src/gmock-all.cc.o -c /usr/src/googletest/googlemock/src/gmock-all.cc",
+  "file": "/usr/src/googletest/googlemock/src/gmock-all.cc"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/gtest/googlemock",
+  "command": "/usr/bin/c++ -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgmock_main_EXPORTS -I/usr/src/googletest/googlemock/include -I/usr/src/googletest/googlemock -I/usr/src/googletest/googletest/include -I/usr/src/googletest/googletest -std=c++11  -fPIC -std=c++11  -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /usr/src/googletest/googlemock/src/gmock_main.cc",
+  "file": "/usr/src/googletest/googlemock/src/gmock_main.cc"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/gtest/googlemock",
+  "command": "/usr/bin/c++ -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgmock_EXPORTS -I/usr/src/googletest/googlemock/include -I/usr/src/googletest/googlemock -I/usr/src/googletest/googletest/include -I/usr/src/googletest/googletest -std=c++11  -fPIC -std=c++11  -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -o CMakeFiles/gmock.dir/__/googletest/src/gtest-all.cc.o -c /usr/src/googletest/googletest/src/gtest-all.cc",
+  "file": "/usr/src/googletest/googletest/src/gtest-all.cc"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/gtest/googlemock",
+  "command": "/usr/bin/c++ -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgmock_EXPORTS -I/usr/src/googletest/googlemock/include -I/usr/src/googletest/googlemock -I/usr/src/googletest/googletest/include -I/usr/src/googletest/googletest -std=c++11  -fPIC -std=c++11  -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /usr/src/googletest/googlemock/src/gmock-all.cc",
+  "file": "/usr/src/googletest/googlemock/src/gmock-all.cc"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/gtest/googlemock/gtest",
+  "command": "/usr/bin/c++ -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgtest_main_EXPORTS -I/usr/src/googletest/googletest/include -I/usr/src/googletest/googletest -std=c++11  -fPIC -std=c++11  -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /usr/src/googletest/googletest/src/gtest_main.cc",
+  "file": "/usr/src/googletest/googletest/src/gtest_main.cc"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/gtest/googlemock/gtest",
+  "command": "/usr/bin/c++ -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgtest_EXPORTS -I/usr/src/googletest/googletest/include -I/usr/src/googletest/googletest -std=c++11  -fPIC -std=c++11  -Wall -Wshadow -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /usr/src/googletest/googletest/src/gtest-all.cc",
+  "file": "/usr/src/googletest/googletest/src/gtest-all.cc"
+},
+{
+  "directory": "/home/laptop/catkin_ws/build/grid_map_costmap_2d/rostest",
+  "command": "/usr/bin/c++ -DEIGEN_DENSEBASE_PLUGIN=\\\"grid_map_core/eigen_plugins/DenseBasePlugin.hpp\\\" -DEIGEN_FUNCTORS_PLUGIN=\\\"grid_map_core/eigen_plugins/FunctorsPlugin.hpp\\\" -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"grid_map_costmap_2d\\\" -I/home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/include -I/usr/src/googletest/googletest/include -isystem /home/laptop/catkin_ws/src/grid_map-master/grid_map_core/include -isystem /opt/ros/melodic/include -isystem /opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -isystem /usr/local/include/eigen3 -isystem /usr/include/eigen3 -std=c++11  -pthread -Wall -Wextra -Wpedantic -o CMakeFiles/test_costmap_2d_ros.dir/costmap_2d_ros/costmap_2d_ros.cpp.o -c /home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/rostest/costmap_2d_ros/costmap_2d_ros.cpp",
+  "file": "/home/laptop/catkin_ws/src/grid_map-master/grid_map_costmap_2d/rostest/costmap_2d_ros/costmap_2d_ros.cpp"
+}
+]

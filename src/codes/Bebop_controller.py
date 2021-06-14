@@ -51,11 +51,11 @@ class Reader():
         # self.new_pos(7,0,0)
         # self.new_pos(7,-9,0)
         # self.new_pos(3,-9,0)
-        self.new_pos(10,0,1,0)
+        self.new_pos(-5,5,3,-0)
 
         #Define Tag Properties
-        #self.aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
-        #self.parameters =  aruco.DetectorParameters_create()
+        self.aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
+        self.parameters =  aruco.DetectorParameters_create()
 
         # define range of blue color in HSV
         self.lower_red_1 = np.array([0,150,50])

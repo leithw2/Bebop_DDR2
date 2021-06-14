@@ -8,6 +8,8 @@
 
 # modified environment variables
 export CMAKE_PREFIX_PATH="/home/laptop/catkin_ws/devel/.private/rotors_joy_interface:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/laptop/catkin_ws/devel/.private/rotors_joy_interface/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/home/laptop/catkin_ws/devel/.private/rotors_joy_interface/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD='/home/laptop/catkin_ws/build/rotors_joy_interface'
 export ROSLISP_PACKAGE_DIRECTORIES="/home/laptop/catkin_ws/devel/.private/rotors_joy_interface/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
 export ROS_PACKAGE_PATH="/home/laptop/catkin_ws/src/rotors_simulator/rotors_joy_interface:$ROS_PACKAGE_PATH"

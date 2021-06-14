@@ -1,0 +1,4 @@
+Symlinking /home/laptop/catkin_ws/devel/lib/libgrid_map_core.so
+Symlinking /home/laptop/catkin_ws/devel/lib/pkgconfig/grid_map_core.pc
+Symlinking /home/laptop/catkin_ws/devel/share/grid_map_core/cmake/grid_map_coreConfig.cmake
+Symlinking /home/laptop/catkin_ws/devel/share/grid_map_core/cmake/grid_map_coreConfig-version.cmake

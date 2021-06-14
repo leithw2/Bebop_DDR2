@@ -8,6 +8,9 @@
 
 # modified environment variables
 export CMAKE_PREFIX_PATH="/home/laptop/catkin_ws/devel/.private/rotors_comm:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/laptop/catkin_ws/devel/.private/rotors_comm/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/home/laptop/catkin_ws/devel/.private/rotors_comm/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD='/home/laptop/catkin_ws/build/rotors_comm'
+export PYTHONPATH="/home/laptop/catkin_ws/devel/.private/rotors_comm/lib/python2.7/dist-packages:$PYTHONPATH"
 export ROSLISP_PACKAGE_DIRECTORIES="/home/laptop/catkin_ws/devel/.private/rotors_comm/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
 export ROS_PACKAGE_PATH="/home/laptop/catkin_ws/src/rotors_simulator/rotors_comm:$ROS_PACKAGE_PATH"

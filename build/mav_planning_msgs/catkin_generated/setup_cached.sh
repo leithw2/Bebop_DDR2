@@ -8,6 +8,9 @@
 
 # modified environment variables
 export CMAKE_PREFIX_PATH="/home/laptop/catkin_ws/devel/.private/mav_planning_msgs:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/laptop/catkin_ws/devel/.private/mav_planning_msgs/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/home/laptop/catkin_ws/devel/.private/mav_planning_msgs/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD='/home/laptop/catkin_ws/build/mav_planning_msgs'
+export PYTHONPATH="/home/laptop/catkin_ws/devel/.private/mav_planning_msgs/lib/python2.7/dist-packages:$PYTHONPATH"
 export ROSLISP_PACKAGE_DIRECTORIES="/home/laptop/catkin_ws/devel/.private/mav_planning_msgs/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
 export ROS_PACKAGE_PATH="/home/laptop/catkin_ws/src/mav_comm/mav_planning_msgs:$ROS_PACKAGE_PATH"

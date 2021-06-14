@@ -151,7 +151,8 @@ float64 z"""
     unpack serialized message in str into this message instance
     :param str: byte array of serialized message, ``str``
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.start_pose is None:
         self.start_pose = geometry_msgs.msg.PoseStamped()
@@ -233,7 +234,8 @@ float64 z"""
     :param str: byte array of serialized message, ``str``
     :param numpy: numpy python module
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.start_pose is None:
         self.start_pose = geometry_msgs.msg.PoseStamped()
@@ -645,7 +647,8 @@ Vector3  angular
     unpack serialized message in str into this message instance
     :param str: byte array of serialized message, ``str``
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.polynomial_plan is None:
         self.polynomial_plan = mav_planning_msgs.msg.PolynomialTrajectory()
@@ -1096,7 +1099,8 @@ Vector3  angular
     :param str: byte array of serialized message, ``str``
     :param numpy: numpy python module
     """
-    codecs.lookup_error("rosmsg").msg_type = self._type
+    if python3:
+      codecs.lookup_error("rosmsg").msg_type = self._type
     try:
       if self.polynomial_plan is None:
         self.polynomial_plan = mav_planning_msgs.msg.PolynomialTrajectory()

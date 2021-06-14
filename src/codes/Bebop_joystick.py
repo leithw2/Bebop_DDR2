@@ -5,7 +5,7 @@ import matplotlib as mpl
 import rospy
 import cv2
 import numpy
-#from cv2 import aruco
+from cv2 import aruco
 from cv_bridge import CvBridge, CvBridgeError
 import std_msgs.msg
 from scipy.spatial.transform import Rotation as R
@@ -24,6 +24,8 @@ class Joystick():
     def __init__(self):
         self.pose_pub = rospy.Publisher('/bebop/command/control', Pose,queue_size=1)
         self.pose_sub = rospy.Subscriber("/bebop/pose", Pose,self.pose_callback)
+        self.image_sub = rospy.Subscriber("/bebop/camera1/image_raw", Image,self.camera_callback)
+
 
         self.bridge = CvBridge()
         self.rate = rospy.Rate(30)
@@ -82,7 +84,36 @@ class Joystick():
         except rospy.ROSInterruptException as ros_e :
             print(ros_e)
 
+    def tagReader(self, frame):
 
+        imgray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        #corners, ids, rejectedImgPoints = aruco.detectMarkers(imgray, self.aruco_dict, parameters=self.parameters)
+        #frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
+
+        if ids is not None:
+
+            for i in range(len(ids)):
+                print(corners[i][0])
+
+            # display the result
+            self.video_output = frame_markers
+            self.set_stateMachine(7)
+            return True
+        else:
+            pass
+        return False
+
+    def camera_callback(self, data):
+
+        try:
+            self.frame = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            self.video_output = self.frame
+
+        except CvBridgeError as e:
+    		print(e)
+
+        self.update(callback.camera)
+        return
 
 if __name__ == '__main__':
     rospy.init_node('Joystick_node', anonymous=False)

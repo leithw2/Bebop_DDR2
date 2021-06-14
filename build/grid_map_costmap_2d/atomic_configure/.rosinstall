@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/laptop/catkin_ws/devel/.private/grid_map_costmap_2d/setup.sh
