@@ -18,8 +18,6 @@ class callback(Enum):
     pose = 0
     camera = 1
 
-
-
 class Joystick():
     def __init__(self):
         self.pose_pub = rospy.Publisher('/bebop/command/control', Pose,queue_size=1)
@@ -48,16 +46,49 @@ class Joystick():
 
         self.error = 0
 
-        while not rospy.is_shutdown():
-            hello_str = "input nextpose %s" % rospy.get_time()
-            rospy.loginfo(hello_str)
-            x,y,z,psi = input("x,y,z,psi :")
-            aposition = self.get_actual_pose().position
+        # while not rospy.is_shutdown():
+        #     hello_str = "input nextpose %s" % rospy.get_time()
+        #     rospy.loginfo(hello_str)
+        #     x,y,z,psi = input("x,y,z,psi :")
+        #     self.sendCommand(x,y,z,psi)
 
-            self.new_pos(x + aposition.x ,y + aposition.y, z + aposition.z ,psi)
-            self.set_target_pose(self.positions.pop())
-            self.send()
-            self.rate.sleep()
+    def sendCommand(self,x,y,z,psi):
+
+        aposition = self.get_actual_pose().position
+        z = 3
+        self.new_pos(x + aposition.x ,y + aposition.y, z ,psi)
+        self.set_target_pose(self.positions.pop())
+        self.send()
+        #self.rate.sleep()
+        pass
+
+    def update(self, callback):
+        p = 0.01
+        if callback.camera  == callback:
+
+            print(self.get_tag_pose()[1])
+            if self.get_tag_pose()[0] > (self.image_size[1]/2) + 5:
+
+                speed = abs(self.get_tag_pose()[0] - (self.image_size[1]/2)) * -p
+                #print(speed)
+                self.sendCommand(0,speed,0,0)
+            if self.get_tag_pose()[0] < (self.image_size[1]/2) - 5:
+
+                speed = abs(self.get_tag_pose()[0] - (self.image_size[1]/2)) * +p
+                #print(speed)
+                self.sendCommand(0,speed,0,0)
+
+            if self.get_tag_pose()[1] > (self.image_size[0]/2) + 5:
+
+                speed = abs(self.get_tag_pose()[1] - (self.image_size[0]/2)) * -p
+                #print(speed)
+                self.sendCommand(speed,0,0,0)
+
+            if self.get_tag_pose()[1] < (self.image_size[0]/2) - 5:
+
+                speed = abs(self.get_tag_pose()[1] - (self.image_size[0]/2)) * +p
+                #print(speed)
+                self.sendCommand(speed,0,0,0)
 
     def set_actual_pose(self, pose):
         self.actual_pose = pose
@@ -77,6 +108,12 @@ class Joystick():
 
     def get_target_pose(self):
         return self.target_pose
+
+    def set_tag_pose(self, pose):
+        self.tag_pose = pose
+
+    def get_tag_pose(self):
+        return self.tag_pose
 
 
     def send(self):
@@ -100,6 +137,7 @@ class Joystick():
                 corner1 ,corner2, corner3, corner4 = corners[i][0]
                 height = int(np.sqrt((corner1[0] - corner2[0])**2 + (corner1[1] - corner2[1])**2))
                 width = int(np.sqrt((corner3[0] - corner4[0])**2 + (corner3[1] - corner4[1])**2))
+
                 font                   = cv2.FONT_HERSHEY_SIMPLEX
                 bottomLeftCornerOfText = (10,500)
                 fontScale              = 1
@@ -123,8 +161,12 @@ class Joystick():
 
             # display the result
             self.video_output = frame_markers
-            #self.set_stateMachine(7)
-            #send_image(self.video_output)
+
+
+            self.set_tag_pose(corner1 )
+
+            self.update(callback.camera)
+
             return True
         return False
 
@@ -143,6 +185,8 @@ class Joystick():
         try:
             self.frame = self.bridge.imgmsg_to_cv2(data, "bgr8")
             self.video_output = self.frame
+            height, width, channels = self.frame.shape
+            self.image_size = [height, width]
 
         except CvBridgeError as e:
     		print(e)

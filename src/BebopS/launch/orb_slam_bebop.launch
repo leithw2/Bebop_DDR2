@@ -129,17 +129,6 @@
     <node name="angular_velocity_errors_plot" pkg="rqt_plot" type="rqt_plot" args="--clear-config /$(arg name)/angularAndAngularVelocityErrors/twist/twist/linear" output="screen" />
    </group>
 
-   <!-- Launch the camera controller -->
-   <rosparam command="load"
-            file="$(find bebop_simulator)/resource/cam.yaml"
-            ns="/camera_controller2" />
-     <rosparam command="load"
-            file="$(find bebop_simulator)/resource/joints.yaml"
-            ns="/joint_state_controller" />
-
-   <node name="bebop_controller_spawner" pkg="controller_manager" type="spawner"
-    args="
-	  /camera_controller2
-	  /joint_state_controller
-          --shutdown-timeout 3"/>
+    <node pkg="tf" type="static_transform_publisher" name="camera_broadcaster" args=" 0 0 0 0 1.5708 0 base_link bebop/camera_link 100" /> 
+<!--rosrun tf static_transform_publisher 0 0 0 0 1.57079632679 0 base_link bebop/camera_link 100  -->
 </launch>

@@ -108,10 +108,10 @@ class pointCloud:
         cloud_points = self.rotY(cloud_points, theta)
 
         theta = np.pi * (0.5)
-        #cloud_points = self.rotZ(cloud_points, theta)
+        cloud_points = self.rotZ(cloud_points, theta)
 
         vec =[0,-0,self.z] #
-        vec =[1,0.5,self.z] #
+        vec =[0,0.0,self.z] #
 
         cloud_points = self.tran(cloud_points, vec)
 

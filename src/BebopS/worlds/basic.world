@@ -96,13 +96,13 @@
       <uri>model://map</uri>
       <pose frame=''>4 -4 0.01 0 0 -1.5708</pose>
     </include>
-    <!--
+   
     <include>
       <name>marker1</name>
       <uri>model://marker2</uri>
       <pose frame=''>0 0 0 0 -0 0</pose>
     </include>
-    -->
+  
     <include>
       <name>unit_box</name>
       <uri>model://unit_box</uri>

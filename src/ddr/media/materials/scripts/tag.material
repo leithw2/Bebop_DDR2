@@ -1,4 +1,4 @@
-material vrc/QRCode
+material tag/diffuce
 {
   receive_shadows on
   technique
@@ -7,7 +7,7 @@ material vrc/QRCode
     {
       texture_unit
       {
-        texture grass_dry.png
+        texture tag.png
 	scale 1 1
       }
     }

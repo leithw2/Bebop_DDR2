@@ -23,10 +23,10 @@ class Reader():
         self.pose_pub = rospy.Publisher('/bebop/command/control', Pose,queue_size=1)
         #self.image_sub = rospy.Subscriber("/cv_camera/image_raw", Image,self.camera_callback)
         self.image_sub = rospy.Subscriber("/bebop/camera1/image_raw", Image,self.camera_callback)
-        self.pose_sub = rospy.Subscriber("/bebop/pose", Pose,self.pose_callback)
+        self.pose_sub = rospy.Subscriber("/bebop/pose", Pose,self.pose_callback, queue_size=1, buff_size=1)
 
         self.bridge = CvBridge()
-        self.rate = rospy.Rate(30)
+        self.rate = rospy.Rate(60)
         self.tic = 0
 
         self.auto = 1
@@ -46,12 +46,9 @@ class Reader():
 
         self.error = 0
 
-        # self.new_pos(12,-9,0)
-        # self.new_pos(12,0,0)
-        # self.new_pos(7,0,0)
-        # self.new_pos(7,-9,0)
-        # self.new_pos(3,-9,0)
-        self.new_pos(-5,5,3,-0)
+        self.new_pos(0,0,5,0)
+        self.new_pos(10,-10,5,0)
+        self.new_pos(0,0,5,0)
 
         #Define Tag Properties
         self.aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -121,6 +118,7 @@ class Reader():
             print(message)
 
     def calc_error_pose(self, actual_pose, target_pose):
+
         self.error_pose.position.x =  abs(actual_pose.position.x - target_pose.position.x)
         self.error_pose.position.y =  abs(actual_pose.position.y - target_pose.position.y)
         self.error_pose.position.z =  abs(actual_pose.position.z - target_pose.position.z)
@@ -129,6 +127,7 @@ class Reader():
         self.error_pose.orientation.y =  abs(actual_pose.orientation.y - target_pose.orientation.y)
         self.error_pose.orientation.z =  abs(actual_pose.orientation.z - target_pose.orientation.z)
         self.error_pose.orientation.w =  abs(actual_pose.orientation.w - target_pose.orientation.w)
+        #print(self.error_pose)
 
         return self.error_pose.position.x + self.error_pose.position.y + self.error_pose.position.z + self.error_pose.orientation.x + self.error_pose.orientation.y + self.error_pose.orientation.z + self.error_pose.orientation.w
 
@@ -192,7 +191,7 @@ class Reader():
                 self.positions = []
 
                 self.new_pos(self.get_actual_pose().position.x + .5 ,self.get_actual_pose().position.y + delta * speed,0)
-                print(self.get_actual_pose().position.x + .5 ,self.get_actual_pose().position.y  + delta * speed,0)
+                #print(self.get_actual_pose().position.x + .5 ,self.get_actual_pose().position.y  + delta * speed,0)
                 self.set_stateMachine(5)
 
 
@@ -200,9 +199,9 @@ class Reader():
             cv2.waitKey(2)
 
     def is_move_end(self):
-        self.send()
+        #self.send()
         error = self.calc_error_pose(self.get_actual_pose(), self.get_target_pose())
-        print(error)
+        #print(error)
         if error <= .3:
             print("arrive to: ",len(self.positions) )
             #print( self.get_actual_pose())
