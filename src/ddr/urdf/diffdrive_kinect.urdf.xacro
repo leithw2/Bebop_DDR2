@@ -5,7 +5,7 @@
   <xacro:property name="dis" value="0.2" />
   <xacro:property name="leglen" value="0.6" />
   <xacro:property name="polelen" value="0.2" />
-  <xacro:property name="bodylen" value="0.1" />
+  <xacro:property name="bodylen" value="0.14" />
   <xacro:property name="baselen" value="0.4" />
   <xacro:property name="wheeldiam" value="0.05" />
   <xacro:property name="pi" value="3.1415" />
@@ -31,20 +31,25 @@
     </inertial>
   </xacro:macro>
 
+
+
   <link name="base_link">
     <visual>
       <geometry>
         <box size="${bodylen} ${bodylen} ${bodylen/2}"/>
       </geometry>
-      <material name="blue"/>
     </visual>
     <collision>
       <geometry>
-        <box size="${bodylen} ${bodylen} ${bodylen/2}"/>
+         <box size="${bodylen/2} ${bodylen/2} ${bodylen/4}"/>
       </geometry>
     </collision>
-    <xacro:default_inertial mass="100"/>
+    <xacro:default_inertial mass="50"/>
   </link>
+
+  <gazebo reference="base_link">
+    <material>marker2/diffuce</material>
+  </gazebo>
 
   <xacro:macro name="wheel" params="prefix suffix x y">
 
@@ -52,7 +57,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
         <geometry>
-          <cylinder radius="${wheeldiam}" length="0.04"/>
+          <cylinder radius="${wheeldiam/2}" length="0.04"/>
         </geometry>
 
       </visual>
@@ -107,7 +112,7 @@
 
   <joint name="camera_joint" type="continuous">
     <axis xyz="0 1 0" />
-    <origin xyz="${camera_link/2 + width} 0 ${bodylen/2+.07}" rpy="0 0 0"/>
+    <origin xyz="${camera_link/2 + width+.05} 0 ${bodylen/2}" rpy="0 0 0"/>
     <parent link="base_link"/>
     <child link="camera_link"/>
   </joint>

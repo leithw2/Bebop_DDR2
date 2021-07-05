@@ -10,6 +10,7 @@ import cv2
 import numpy
 import std_msgs.msg
 from sensor_msgs.msg import Image
+from std_msgs.msg import String
 from nav_msgs.msg import Path
 from geometry_msgs.msg import Transform, Quaternion, Point, Twist, Pose, PoseStamped
 from nav_msgs.msg import Odometry
@@ -25,6 +26,9 @@ class controller():
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
 
         self.cmd_vel_pub = rospy.Publisher('/roboto_diff_drive_controller/cmd_vel', Twist,queue_size=1)
+
+        self.goal_pose_sub= rospy.Subscriber('/goal/pose', Point, self.goal_pose_callback)
+        self.bebop_state_sub= rospy.Subscriber('/bebop/state', String, self.bebop_state_callback)
         self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
         self.path_sub = rospy.Subscriber("/rrt/path", Path,self.path_callback)
@@ -47,11 +51,12 @@ class controller():
         self.u = 0
         self.w = 0
 
-        self.state = 0
+        self.state = 4
+        self.bebop_state = 0
 
         #Debugging
         #self.havePath = True
-        #self.positions = []
+        self.positions = []
 
         return
 
@@ -90,11 +95,6 @@ class controller():
         w = 0
         #Error matrix (2,1)target
         theta = np.arctan2(target[1] - self.pose.y , target[0]- self.pose.x)
-        #print("theta: ",theta)
-        #print("phi ",self.phi )
-        #print("dist: ",dist)
-        # print(" map_theta: ", theta + np.pi *2 )
-        # print("map_theta - phi: ",abs(self.phi - (theta + (np.pi * 2)) ))
 
         vel = .1
 
@@ -106,13 +106,13 @@ class controller():
         dx = target[0] - self.pose.x
         dy = target[1] - self.pose.y
         target_angle = np.arctan2(dy, dx)
-        print(target_angle)
+        #print(target_angle)
         d_angle = target_angle - self.phi
         if d_angle < np.pi:
             d_angle = d_angle + (np.pi * 2)
         if d_angle > np.pi:
             d_angle = d_angle - (np.pi * 2)
-        print(d_angle)
+        #print(d_angle)
         #d_angle = wrap_to_p(d_angle)    # wrap the angle here
         if abs(d_angle) < 0.05:
            self.state = 2
@@ -121,107 +121,8 @@ class controller():
         else:
            w = +vel
 
-
-
-
-        # if theta < 0:
-        #     if self.phi > 0:
-        #         if abs(self.phi - theta) < np.pi:
-        #             w = -vel
-        #             map_theta = theta + 0
-        #             print("menor a pi")
-        #             print(abs(self.phi - map_theta ))
-        #             if abs(self.phi - map_theta) < 0.05:
-        #                 self.state = 1
-        #                 return
-        #         else:
-        #             w = +vel
-        #             map_theta = theta +  np.pi * 2
-        #             print("mayor a pi")
-        #             print(abs(self.phi - map_theta ))
-        #             if abs(self.phi - map_theta ) < 0.05:
-        #                 self.state = 1
-        #                 return
-        #
-        #
-        #     if self.phi <= 0:
-        #         if abs((self.phi - (theta + np.pi))) < np.pi:
-        #             w = +vel #negative
-        #             map_theta = theta + 0
-        #             print("menor a pi")
-        #             print(abs(self.phi - map_theta ))
-        #             if abs(self.phi - map_theta ) < 0.05:
-        #                 self.state = 1
-        #                 return
-        #         else:
-        #             w = +vel #positive
-        #             map_theta = theta + (np.pi * 2)
-        #             print("mayor a pi")
-        #             print(abs(self.phi - map_theta ))
-        #             if abs(map_theta - self.phi) < 0.05:
-        #                 self.state = 1
-        #                 return
-
-        # if theta >= 0:
-        #     if self.phi > 0:
-        #         if abs(self.phi - theta) < np.pi:
-        #             w = +vel #positive
-        #             map_theta = theta + 0
-        #             print("menor a pi")
-        #             if abs(map_theta - self.phi) < 0.05:
-        #                 self.state = 1
-        #                 return
-        #         else:
-        #             w = +vel #negative
-        #             map_theta = theta +  np.pi * 2
-        #             print("mayor a pi")
-        #             print(abs(self.phi - map_theta ))
-        #             if abs(self.phi - map_theta ) < 0.05:
-        #                 self.state = 1
-        #                 return
-        #
-        #
-        #     if self.phi <= 0:
-        #         if abs(self.phi - theta) < np.pi:
-        #             w = +vel #positive
-        #             map_theta = theta + 0
-        #             print("menor a pi")
-        #             print(abs(self.phi - map_theta ))
-        #             if abs(map_theta - self.phi) < 0.05:
-        #                 self.state = 1
-        #                 return
-        #         else:
-        #             w = -vel #negative
-        #             map_theta = theta +  np.pi * 2
-        #             print("mayor a pi")
-        #             if abs(self.phi - map_theta ) < 0.05:
-        #                 self.state = 1
-        #                 return
-
-
-        # if angle > 0:
-        #     if self.phi < angle:
-        #         w = +vel #positive
-        #
-        #     if self.phi >= angle:
-        #         w = -vel #negative
-        #
-        # if angle <= 0:
-        #     if self.phi > angle:
-        #         w = -vel #negative
-        #
-        #     if self.phi <= angle:
-        #         w = +vel#positive
-
-        #map_angle =
-        #map_phi =
-        #initial lineal and angular velocities of the robot
         u = 0
 
-        #print ("target pose:::::::::::::::.",self.pose)
-        #print ("target pose error ", xre," ",yre  )
-        #print ("angle target ", angle," actual angle ", self.phi)
-        #print (v)
         self.send_u_w(u, w)
 
 
@@ -251,15 +152,15 @@ class controller():
         return
 
     def send_u_w(self, u, w):
-        target = Twist()
-        target.linear.x = u
-        target.linear.y = 0
-        target.linear.z = 0
-        target.angular.x = 0
-        target.angular.y = 0
-        target.angular.z = w
+        command = Twist()
+        command.linear.x = u
+        command.linear.y = 0
+        command.linear.z = 0
+        command.angular.x = 0
+        command.angular.y = 0
+        command.angular.z = w
 
-        self.cmd_vel_pub.publish(target)
+        self.cmd_vel_pub.publish(command)
 
         return
 
@@ -291,7 +192,7 @@ class controller():
             pass
 
     def odometry_callback(self, data):
-
+        self.r.sleep()
         if self.havePath:
 
             self.actual_pose = data
@@ -313,22 +214,50 @@ class controller():
 
             self.search_next(self.positions)
 
-            self.r.sleep()
-            self.ts = rospy.Time.now().to_sec() - self.time
-            self.time = rospy.Time.now().to_sec()
+        else:
+            self.actual_pose = data
+            self.u = data.twist.twist.linear.x
+            self.w = data.twist.twist.angular.z
 
+            self.pose = data.pose.pose.position
+            orientation = data.pose.pose.orientation
+            r = [orientation.x,
+                  orientation.y,
+                  orientation.z,
+                  orientation.w]
+            r = R.from_quat(r, normalized = True)
+            #print(r.as_euler('xyz',degrees=False)[2])
+            self.phi = r.as_euler('xyz',degrees=False)[2]
+
+            self.search_next(self.positions)
+
+
+        self.ts = rospy.Time.now().to_sec() - self.time
+        self.time = rospy.Time.now().to_sec()
+
+    def bebop_state_callback(self, data):
+        self.bebop_state = int(data.data)
+        if data.data == "6":
+            print("start_ moving_hovering")
+
+    def goal_pose_callback(self, data):
+
+        if self.bebop_state == 6 and self.state == 4:
+            self.positions = []
+            self.positions.append([data.x, data.y])
+            self.state = 0
+            #self.search_next(self.positions)
+            print("goal pose callback")
 
     def camera_callback(self, data):
-        #print "here"
-        global i
+
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-    	except CvBridgeError as e:
-    		print(e)
-    	(row,cols,channels) = cv_image.shape
+        except CvBridgeError as e:
+        	print(e)
+        (row,cols,channels) = cv_image.shape
 
-
-    	im = cv_image
+        im = cv_image
         #im = cv2.imread("images/tag.png")
         #im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
 
@@ -345,6 +274,7 @@ class controller():
         # display the result
         cv2.imshow("img", frame_markers)
         cv2.waitKey(1)
+
 
 
 if __name__ == '__main__':

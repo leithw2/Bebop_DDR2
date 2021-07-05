@@ -22,7 +22,7 @@ class controller():
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
 
         self.bridge = CvBridge()
-        self.r = rospy.Rate(50)
+        self.r = rospy.Rate(60)
 
         self.positions = []
         self.positions.append(Pose(Point(0,0,0), Quaternion(0,0,0,0)))
@@ -153,18 +153,13 @@ class controller():
         self.ts = rospy.Time.now().to_sec() - self.time
         self.time = rospy.Time.now().to_sec()
 
-
-
     def camera_callback(self,data):
-        #print "here"
-        global i
+
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-
-    	except CvBridgeError as e:
+        except CvBridgeError as e:
     		print(e)
     	(row,cols,channels) = cv_image.shape
-
 
     	im = cv_image
         #im = cv2.imread("images/tag.png")

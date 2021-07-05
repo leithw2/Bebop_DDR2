@@ -34,6 +34,7 @@ class Joystick():
         self.target_pose = Pose()
         self.actual_pose = Pose()
         self.error_pose = Pose()
+        self.tag_pose = []
         self.positions = []
         self.video_output = []
         self.frame = []

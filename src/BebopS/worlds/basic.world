@@ -98,9 +98,14 @@
     </include>
    
     <include>
-      <name>marker1</name>
+      <name>marker</name>
+      <uri>model://marker</uri>
+      <pose frame=''>8 -8 0 0 -0 0</pose>
+    </include>
+    <include>
+      <name>marker2</name>
       <uri>model://marker2</uri>
-      <pose frame=''>0 0 0 0 -0 0</pose>
+      <pose frame=''>-8 8 0 0 -0 0</pose>
     </include>
   
     <include>
