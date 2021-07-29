@@ -131,5 +131,5 @@
 
     <node pkg="tf" type="static_transform_publisher" name="camera_drone_broadcaster" args=" 0 0 0 0 1.5708 0 base_link bebop/camera_link 100" />
     <node pkg="tf" type="static_transform_publisher" name="camera_ddr_broadcaster" args=" 0 0 .2 -1.57079632679 0 -1.57079632679 base_link camera_link 100" />
-<!--rosrun tf static_transform_publisher 0 0 0 0 1.57079632679 0 base_link bebop/camera_link 100  -->
+<!--rosrun tf static_transform_publisher 0 0 .2 1.57079632679 0 0 odom camera_depth_frame 100  -->
 </launch>

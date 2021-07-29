@@ -3,15 +3,16 @@
   <!-- Kinect cloud to laser scan -->
     <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">
       <remap from="image"       to="/rrbot/camera/depth/image_raw"/>
-      <remap from="camera_info" to="/rrbot/camera/color/camera_info"/>
+      <remap from="camera_info" to="/rrbot/camera/depth/camera_info"/>
       <remap from="scan"        to="/kinect_scan"/>
-      <param name="range_max" type="double" value="4"/>
+      <param name="range_max" type="double" value="6"/>
+      <param name="range_min" type="double" value="0.1"/>
     </node>
 
   <!-- SLAM -->
   <group ns="rtabmap">
     <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
-          <param name="frame_id" type="string" value="camera_link"/>
+          <param name="frame_id" type="string" value="base_link"/>
 
           <param name="subscribe_depth" type="bool" value="true"/>
           <param name="subscribe_scan" type="bool" value="true"/>
@@ -36,4 +37,7 @@
           <param name="Grid/CellSize"                   type="double"     value="0.01"/>
     </node>
   </group>
+
+  <node pkg="tf" type="static_transform_publisher" name="camera_ddrFakeLaser_broadcaster" 
+    args=" 0 0 0 0 0 0 base_link camera_depth_frame 100" />
 </launch>

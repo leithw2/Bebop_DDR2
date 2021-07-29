@@ -57,7 +57,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
         <geometry>
-          <cylinder radius="${wheeldiam/2}" length="0.04"/>
+          <cylinder radius="${wheeldiam}" length="0.04"/>
         </geometry>
 
       </visual>
@@ -171,7 +171,7 @@
 	      </image>
 	      <clip>
 		<near>0.1</near>
-		<far>4</far>
+		<far>6</far>
 	      </clip>
 	    </camera>
 

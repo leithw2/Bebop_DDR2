@@ -59,9 +59,23 @@ class Controller:
         ##############################
         self.set_stateMachine(1)
 
-        self.new_pos(0,0,5,0)
-        self.new_pos(8,-8,5,0)
-        self.new_pos(0,0,5,0)
+        self.new_pos( 0, 0,5,0)
+        self.new_pos( 2, 0, 5,0)
+        self.new_pos( 2,-2,5,0)
+        self.new_pos( 0,-2,5,0)
+        self.new_pos( 0,-4,5,0)
+        self.new_pos( 4,-4,5,0)
+        self.new_pos( 4, 0,5,0)
+        self.new_pos( 6, 0,5,0)
+        self.new_pos( 6,-6,5,0)
+        self.new_pos( 0,-6,5,0)
+        self.new_pos( 0,-8,5,0)
+        self.new_pos( 8,-8,5,0)
+        self.new_pos( 8, 0,5,0)
+
+
+        self.positions = self.positions[::-1]
+
 
         self.image_sub      = rospy.Subscriber("/camera/color/image_raw", Image,self.camera_callback)
         self.pose_sub       = rospy.Subscriber("/bebop/pose", Pose, self.pose_callback)
@@ -87,7 +101,7 @@ class Controller:
         return self.target_pose
 
     def set_goal_pose(self, pose):
-        self.goal_pose = pose
+        self.goal_pose = poseself.positions
 
     def get_goal_pose(self):
         return self.goal_pose

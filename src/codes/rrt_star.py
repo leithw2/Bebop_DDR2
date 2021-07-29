@@ -274,7 +274,7 @@ class RrtStar:
 
     def search_goal_parent(self):
         dist_list = [math.hypot(n.x - self.s_goal.x, n.y - self.s_goal.y) for n in self.vertex]
-        node_index = [i for i in range(len(dist_list)) if dist_list[i] <= self.step_len]
+        node_index = [i for i in range(len(dist_list)) if dist_list[i] <= self.step_len*.01]
 
         if len(node_index) > 0:
             cost_list = [dist_list[i] + self.cost(self.vertex[i]) for i in node_index
@@ -303,7 +303,7 @@ class RrtStar:
 
     def find_near_neighbor(self, node_new):
         n = len(self.vertex) + 1
-        r = min(self.search_radius * math.sqrt((math.log(n) / n)), self.step_len)
+        r = min(self.search_radius * math.sqrt((math.log(n) / n)), self.step_len*.1)
 
         dist_table = [math.hypot(nd.x - node_new.x, nd.y - node_new.y) for nd in self.vertex]
         dist_table_index = [ind for ind in range(len(dist_table)) if dist_table[ind] <= r and
