@@ -38,20 +38,27 @@ class RRT_ROS:
         self.rate = rospy.Rate(0.05)
         self.bridge = CvBridge()
 
-        self.rrt_star = RrtStar((0,0), (0,0), 1500, 0.1, 1000, 4000)
+        self.rrt_star = RrtStar((0,0), (0,0), 1500, 0.1, 1000, 3000)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.positionmap = [0,0]
         self.object_target = Node([7/0.05,-5/0.05])
-        self.x_start = Node([0,0])
-        self.x_goal = Node([0,0])
+        self.x_start = []
+        self.x_goal = []
+        self.real_start = []
+        self.real_goal = []
 
-        self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
-        self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
-        self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid, self.callback, queue_size=1, buff_size=1)
-        self.image_drone_sub = rospy.Subscriber("/bebop/image_map",Image, self.callback_image_drone, queue_size=1, buff_size=1)
-        self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
-        self.goal_pose_sub= rospy.Subscriber('/goal/pose', Point, self.goal_pose_callback)
+        self.img2 = []
+
+        self.path_pub = rospy.Publisher("/rrt/path_drone",Path, queue_size=1)
+        self.path_image_pub = rospy.Publisher("/debug/image_path_drone",Image, queue_size=1)
+
+        #self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid, self.callback, queue_size=1, buff_size=1)
+        self.image_sub = rospy.Subscriber("/bebop/image_map",Image, self.callback_image, queue_size=1, buff_size=1)
+        self.map_start_sub = rospy.Subscriber("/bebop/start_map", Point,self.callback_map_start, queue_size=1, buff_size=1)
+        self.map_goal_sub= rospy.Subscriber('/bebop/goal_map', Point, self.callback_map_goal, queue_size=1, buff_size=1)
+        self.start_sub = rospy.Subscriber("/bebop/start_map", Point,self.callback_start, queue_size=1, buff_size=1)
+        self.goal_sub= rospy.Subscriber('/bebop/goal', Point, self.callback_goal, queue_size=1, buff_size=1)
 
     def getTargetRandomPose(self):
 
@@ -63,10 +70,11 @@ class RRT_ROS:
     def callback(self, data):
         pass
 
-    def callback_image_drone(self, data):
-
-
-        if True:
+    def callback_image(self, data):
+        print("callback imagen")
+        print(self.x_start != [], self.x_goal != [], self.real_goal != [])
+        if self.x_start != [] and self.x_goal != [] and self.real_goal != []:
+            print("AAAAAAAAAAAAAAAAAA")
             path=[]
 
             #self.example_function()
@@ -75,14 +83,17 @@ class RRT_ROS:
             self.height = data.height
             size = [self.height,self.width ]
             self.fig = None
-            self.positionmap = [0,0]
+            self.positionmap = [-self.x_start.x,-self.x_start.y]
             self.z=0
             cv_image = self.bridge.imgmsg_to_cv2(data, 'mono8')
             self.img = np.array(np.uint8(np.resize(cv_image, [self.height,self.width ])))
-            self.robot_pose = np.array([350,710])
+            self.robot_pose = np.array([0,0])
             self.img = (255-self.img)
-            print(self.img[10][10])
 
+            d_x = self.real_goal.x / (self.x_goal.x-self.x_start.x)
+            d_y = self.real_goal.y / (self.x_goal.y-self.x_start.y)
+
+            print(d_x, d_y)
             #cv2.imshow('image',self.img)
             #cv2.waitKey(0)
 
@@ -100,33 +111,7 @@ class RRT_ROS:
             self.rrt_star.env.x_range = self.rrt_star.x_range
             self.rrt_star.env.y_range = self.rrt_star.y_range
 
-            #print(self.rrt_star.x_range)
-            #print(self.rrt_star.y_range)
-
             start_time = time.time()
-
-            tarpose = self.getTargetRandomPose()
-
-            #print("Tiempo: ", time.time() - start_time)
-
-            #print("target pose")
-            #print(tarpose.x, tarpose.y)
-            if tarpose != []:
-                tarposex = tarpose.x
-                tarposey = tarpose.y
-            else:
-                return
-            #tarposex = 0
-            #tarposey = 0
-
-            #self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
-            self.robot_target = np.array([tarposex, tarposey])
-
-            #print(self.robot_pose)
-            print(self.robot_target)
-
-            print(self.width)
-            print(self.height)
 
             size = (np.shape(self.img))
             self.rrt_star.env.img = self.img
@@ -138,8 +123,8 @@ class RRT_ROS:
             self.rrt_star.env.x_range = self.rrt_star.x_range
             self.rrt_star.env.y_range = self.rrt_star.y_range
 
-            self.x_start = Node(self.robot_pose)  # Starting node
-            self.x_goal = Node(self.robot_target)
+            #self.x_start = Node(self.robot_pose)  # Starting node
+            #self.x_goal = Node(self.robot_target)
             #x_start = (18, 20)  # Starting node
             #x_goal = (190, 125)
             self.rrt_star.selectStartGoalPoints(self.x_start , self.x_goal )
@@ -147,38 +132,19 @@ class RRT_ROS:
 
             if path is None:
                 print("Cannot find path")
-                for i in range(50):
-
-                    #self.neighborsToBlack(5,tarposey,tarposex)
-                    #plt.imshow(self.img, cmap=cm.Greys_r)
-                    tarpose = self.getTargetRandomPose()
-
-                    if tarpose != []:
-                        tarposex = tarpose.x
-                        tarposey = tarpose.y
-                    else:
-                        continue
-
-                    self.robot_target = np.array([tarposex, tarposey])
-                    self.x_goal = Node(self.robot_target)
-                    self.rrt_star.selectStartGoalPoints(self.x_start , self.x_goal )
-                    path = self.rrt_star.planning()
-
-                    if path is not None:
-                        break
 
             if path is not None:
                 print("found path!!")
 
                 odomcoor = np.array(path)
-                odomcoorx = np.array([odomcoor[:,0] + self.positionmap[0]])*0.05
-                odomcoory = np.array([odomcoor[:,1] + self.positionmap[1]])*0.05
+                odomcoorx = np.array([odomcoor[:,0] + self.positionmap[0]])*d_x
+                odomcoory = np.array([odomcoor[:,1] + self.positionmap[1]])*d_y
                 odomcoor = np.append(odomcoorx , odomcoory, axis= 0)
                 path = odomcoor.T
                 print 'Final path:', odomcoor.T
 
                 self.send(path[::-1])
-                rospy.signal_shutdown("End node")
+
 
                 img2 = np.fromstring(self.rrt_star.plotting.fig.canvas.tostring_rgb(), dtype=np.uint8,
                       sep='')
@@ -187,11 +153,10 @@ class RRT_ROS:
                 img2  = img2.reshape(self.rrt_star.plotting.fig.canvas.get_width_height()[::-1] + (3,))
 
                 self.img2 = cv2.cvtColor(img2,cv2.COLOR_RGB2BGR)
-                self.send_image_path(self.img2)
+                #rospy.signal_shutdown("End node")
 
                 return path
 
-            pass
 
 
         # NoneType = type(None)
@@ -201,22 +166,24 @@ class RRT_ROS:
         # pass
 
 
-    def odometry_callback(self, data):
-        pose = []
-        self.actual_pose = data
-
-        pose = self.example_function(data.pose.pose, 'map', 'odom')
-        if pose is not None:
-            self.Odometry = True
-            pose = pose.pose.position
-            self.robot_pose = np.array([pose.x /0.05 - self.positionmap[0], pose.y/0.05  - self.positionmap[1]])
-        else:
-            self.Odometry = False
-        #print(pose.x,pose.y)
-
         #self.example_function(data.pose.pose, 'map', 'odom')
-    def goal_pose_callback(self, data):
-        self.object_target = Node([data.x/0.05, data.y/0.05])
+    def callback_goal(self, data):
+        self.real_goal = Node([data.x, data.y])
+        #print("callback_goal")
+
+    def callback_start(self, data):
+        self.real_start = Node([data.x, data.y])
+        #print("callback_start")
+
+    def callback_map_goal(self, data):
+        self.x_goal = Node([data.x, data.y])
+        if self.img2 != []:
+            self.send_image_path(self.img2)
+        #print("callback_goal_map")
+
+    def callback_map_start(self, data):
+        self.x_start = Node([data.x, data.y])
+        #print("callback_start_map")
 
     def send_image_path(self, path_image):
 
@@ -226,7 +193,7 @@ class RRT_ROS:
         except rospy.ROSInterruptException as ros_e :
             print(ros_e)
 
-        self.rate.sleep()
+        #self.rate.sleep()
 
     def send(self, path):
         """

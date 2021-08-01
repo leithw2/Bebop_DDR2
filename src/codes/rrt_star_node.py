@@ -40,16 +40,17 @@ class RRT_ROS:
         #self.debug_image = imread(MAP_IMG,mode="L")
         #self.img2 = cv2.cvtColor(self.debug_image,cv2.COLOR_RGB2BGR)
         ########
-
+        self.respix = 0.01
         self.bridge = CvBridge()
 
-        self.rrt_star = RrtStar((0,0), (0,0), 15, 0.2, 500, 1000)
+        self.rrt_star = RrtStar((0,0), (0,0), 15, 0.2, 500, 3000)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.positionmap = [0,0]
-        self.object_target = Node([7/0.05,-5/0.05])
+        self.object_target = Node([7/self.respix,-5/self.respix])
         self.x_start = Node([0,0])
         self.x_goal = Node([0,0])
+
 
         self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
         self.path_image_pub = rospy.Publisher("/debug/image_path",Image, queue_size=1)
@@ -221,9 +222,9 @@ class RRT_ROS:
             self.height = data.info.height
             size = [self.height,self.width ]
 
-            self.positionmap = [        self.fig = None
-        self.z=0round(data.info.origin.position.x/0.05), round(data.info.origin.position.y/0.05)]
-
+            self.positionmap = [round(data.info.origin.position.x/self.respix), round(data.info.origin.position.y/self.respix)]
+            self.fig = None
+            self.z=0
             self.img = np.array(np.uint8(np.resize(map, [self.height,self.width])))
 
 
@@ -239,17 +240,6 @@ class RRT_ROS:
             self.img = cv2.erode(self.img,kernel,iterations = 1)
             #self.img = cv2.dilate(self.img,kernel,iterations = 1)
 
-            #plt.imshow(self.img, cmap=cm.Greys_r)
-            # specify a threshold 0-255
-            #threshold = 200
-            # make all pixels < threshold black
-
-            #self.img = 255 * (self.img  > threshold)
-
-            #robposex = 2.0 / 0.05
-            #robposey = 0.0 / 0.05
-            #tarposex = +3.9 / 0.05
-            #tarposey = -1.0 / 0.05
             self.rrt_star.env.img = self.img
             self.rrt_star.utils.img = self.img
             self.rrt_star.plotting.img = self.img
@@ -330,8 +320,8 @@ class RRT_ROS:
                 print("found path!!")
 
                 odomcoor = np.array(path)
-                odomcoorx = np.array([odomcoor[:,0] + self.positionmap[0]])*0.05
-                odomcoory = np.array([odomcoor[:,1] + self.positionmap[1]])*0.05
+                odomcoorx = np.array([odomcoor[:,0] + self.positionmap[0]])*self.respix
+                odomcoory = np.array([odomcoor[:,1] + self.positionmap[1]])*self.respix
                 odomcoor = np.append(odomcoorx , odomcoory, axis= 0)
                 path = odomcoor.T
                 print 'Final path:', odomcoor.T
@@ -365,17 +355,20 @@ class RRT_ROS:
         self.actual_pose = data
 
         pose = self.example_function(data.pose.pose, 'map', 'odom')
+
         if pose is not None:
             self.Odometry = True
             pose = pose.pose.position
-            self.robot_pose = np.array([pose.x /0.05 - self.positionmap[0], pose.y/0.05  - self.positionmap[1]])
+            self.robot_pose = np.array([pose.x /self.respix - self.positionmap[0], pose.y/self.respix  - self.positionmap[1]])
+            #print(pose)
+            #print(self.robot_pose)
         else:
             self.Odometry = False
         #print(pose.x,pose.y)
 
         #self.example_function(data.pose.pose, 'map', 'odom')
     def goal_pose_callback(self, data):
-        self.object_target = Node([data.x/0.05, data.y/0.05])
+        self.object_target = Node([data.x/self.respix, data.y/self.respix])
 
     def send_image_path(self, path_image):
 

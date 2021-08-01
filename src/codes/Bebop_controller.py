@@ -59,19 +59,14 @@ class Controller:
         ##############################
         self.set_stateMachine(1)
 
-        self.new_pos( 0, 0,5,0)
-        self.new_pos( 2, 0, 5,0)
-        self.new_pos( 2,-2,5,0)
-        self.new_pos( 0,-2,5,0)
-        self.new_pos( 0,-4,5,0)
-        self.new_pos( 4,-4,5,0)
-        self.new_pos( 4, 0,5,0)
-        self.new_pos( 6, 0,5,0)
-        self.new_pos( 6,-6,5,0)
-        self.new_pos( 0,-6,5,0)
-        self.new_pos( 0,-8,5,0)
-        self.new_pos( 8,-8,5,0)
-        self.new_pos( 8, 0,5,0)
+        self.new_pos( 0, 0,4,0)
+        self.new_pos( 2,-2,4,0)
+        self.new_pos( 0,-2,4,0)
+        self.new_pos( 0,-4,4,0)
+        self.new_pos( 6, 0,4,0)
+        self.new_pos( 0,-8,4,0)
+        self.new_pos( 8,-8,4,0)
+        self.new_pos( 8, 0,4,0)
 
 
         self.positions = self.positions[::-1]
@@ -81,10 +76,12 @@ class Controller:
         self.pose_sub       = rospy.Subscriber("/bebop/pose", Pose, self.pose_callback)
         self.ddr_state_sub  = rospy.Subscriber('/ddr/state', String, self.ddr_state_callback, queue_size=1, buff_size=2**24)
 
+
         self.pose_pub       = rospy.Publisher('/bebop/command/control', Pose,queue_size=1)
         self.image_pub      = rospy.Publisher("/debug/image",Image, queue_size=1)
         self.bebop_state_pub= rospy.Publisher('/bebop/state', String, queue_size=1)
-        self.goal_pose_pub  = rospy.Publisher('/goal/pose', Point, queue_size=1)
+        self.goal_pub       = rospy.Publisher('/bebop/goal', Point, queue_size=1)
+        self.start_pub      = rospy.Publisher("/bebop/start",Point, queue_size=1)
         #init first target location
         #self.move_to(self.positions)
 
@@ -101,7 +98,7 @@ class Controller:
         return self.target_pose
 
     def set_goal_pose(self, pose):
-        self.goal_pose = poseself.positions
+        self.goal_pose = pose
 
     def get_goal_pose(self):
         return self.goal_pose
@@ -155,7 +152,7 @@ class Controller:
             self.send_state(self.get_stateMachine())
             self.send()
         if self.get_stateMachine() == 6:
-            self.send_goal()
+            self.send_goal(self.get_goal_pose())
 
         if self.tic % 60 == 0 and message != "":
 
@@ -186,6 +183,10 @@ class Controller:
     def update(self, callback):
         self.tic += 1
         self.log_state()
+
+        ####debbuger
+        #self.send_goal(self.get_goal_pose())
+        #########
         p = 0.01
         if callback.pose == callback:
             if self.get_stateMachine() == 0: #stanby
@@ -229,7 +230,7 @@ class Controller:
             if self.get_stateMachine() == 4: #goal found
                 #self.tagReader(self.frame)
                 self.log_state("coordenadas listas ")
-                self.new_pos(0,0,5,0)
+                self.new_pos(0,0,4,0)
                 self.move_one()
                 self.log_state("Returnin_to = " + str(self.move_to()) )
                 self.set_stateMachine(5)
@@ -258,7 +259,7 @@ class Controller:
 
     def tracker(self, tracked_object):
         i       = 0
-        p       = 0.008
+        p       = 0.01
         speedx  = 0
         speedy  = 0
         delta   = 5
@@ -334,25 +335,40 @@ class Controller:
         except rospy.ROSInterruptException as ros_e :
             print(ros_e)
 
-    def send_goal(self):
+    def send_start(self, p):
 
         #self.rate.sleep()
         point   = Point()
-        point.x = self.get_goal_pose()[0]
-        point.y = self.get_goal_pose()[1]
+        point.x = p[0]
+        point.y = p[1]
         point.z = 0
 
         try:
-            self.goal_pose_pub.publish(point)
+            self.start_pub.publish(point)
         except rospy.ROSInterruptException as ros_e :
             print(ros_e)
 
+    def send_goal(self, p):
+
+        #self.rate.sleep()
+        point   = Point()
+        point.x = p[0]
+        point.y = p[1]
+        point.z = 0
+
+        point.x =  8.07
+        point.y = -7.92
+        point.z = 0
+        try:
+            self.goal_pub.publish(point)
+        except rospy.ROSInterruptException as ros_e :
+            print(ros_e)
 
     def sendCommand(self,x,y,z,psi):
 
         #self.rate.sleep()
         aposition = self.get_actual_pose().position
-        z = 5
+        z = 4
         self.new_pos(x + aposition.x ,y + aposition.y, z ,psi)
         self.set_target_pose(self.positions[-1])
         self.send()

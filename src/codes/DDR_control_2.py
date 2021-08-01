@@ -21,6 +21,7 @@ from cv_bridge import CvBridge, CvBridgeError
 class controller():
     def __init__(self):
         self.havePath = False
+        self.haveDronePath = False
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.bridge = CvBridge()
@@ -36,18 +37,21 @@ class controller():
         self.bebop_state = 0
         self.positions = []
         self.path = []
+        self.drone_path =[]
+        self.target_pose =[]
 
         self.cmd_vel_pub = rospy.Publisher('/roboto_diff_drive_controller/cmd_vel', Twist,queue_size=1)
 
-        self.goal_pose_sub= rospy.Subscriber('/goal/pose', Point, self.goal_pose_callback)
+        #self.goal_pose_sub= rospy.Subscriber('/goal/pose', Point, self.goal_pose_callback)
         self.bebop_state_sub= rospy.Subscriber('/bebop/state', String, self.bebop_state_callback)
         #self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
         self.path_sub = rospy.Subscriber("/rrt/path", Path,self.path_callback)
-        self.path_sub = rospy.Subscriber("/kinect_scan", LaserScan, self.laserScan_callback)
+        self.path_sub = rospy.Subscriber("/rrt/path_drone", Path,self.drone_path_callback)
+        self.kinect_scan_sub = rospy.Subscriber("/kinect_scan", LaserScan, self.laserScan_callback)
 
     def search_next(self, positions):
-
+        print(self.target_pose)
         if self.stateMachine == 4:
             self.moveState = 0
             self.send_u_w(0,0)
@@ -58,6 +62,7 @@ class controller():
             if self.moveState == 0 and positions :
                 #self.target_pose = positions #Debugging
                 self.target_pose = positions.pop(0)
+
                 self.moveState = 1
 
             if self.moveState == 1:
@@ -140,7 +145,7 @@ class controller():
 
     def path_callback(self, data):
 
-        if self.stateMachine == 1: #following path
+        if self.stateMachine == 1: #following own path
             self.path = []
 
             for pose in data.poses:
@@ -149,6 +154,20 @@ class controller():
 
             #print (self.positions)
             self.havePath = True
+
+    def drone_path_callback(self, data):
+
+        if self.stateMachine != 1: #following drone path
+            self.drone_path = []
+
+            for pose in data.poses:
+                point = [-pose.pose.position.y, -pose.pose.position.x]
+                self.drone_path.append(point)
+
+            #print (self.positions)
+            self.haveDronePath = True
+            self.stateMachine = 2
+
 
     def laserScan_callback(self, data):
         ranges = data.ranges
@@ -190,31 +209,33 @@ class controller():
             else:
                 print("waiting for path.....")
 
-        if self.stateMachine == 2: #
-            self.u = data.twist.twist.linear.x
-            self.w = data.twist.twist.angular.z
-            self.pose = data.pose.pose.position
-            orientation = data.pose.pose.orientation
-            r = [orientation.x,
-                  orientation.y,
-                  orientation.z,
-                  orientation.w]
-            r = R.from_quat(r, normalized = True)
-            self.phi = r.as_euler('xyz',degrees=False)[2]
-            self.search_next(self.positions)
+        if self.stateMachine == 2: # Drone guided
+            if self.haveDronePath:
+                self.positions = self.drone_path
+                self.u = data.twist.twist.linear.x
+                self.w = data.twist.twist.angular.z
+                self.pose = data.pose.pose.position
+                orientation = data.pose.pose.orientation
+                r = [orientation.x,
+                      orientation.y,
+                      orientation.z,
+                      orientation.w]
+                r = R.from_quat(r, normalized = True)
+                self.phi = r.as_euler('xyz',degrees=False)[2]
+                self.search_next(self.positions)
 
-        self.ts = rospy.Time.now().to_sec() - self.time
-        self.time = rospy.Time.now().to_sec()
+            self.ts = rospy.Time.now().to_sec() - self.time
+            self.time = rospy.Time.now().to_sec()
 
     def bebop_state_callback(self, data):
         self.bebop_state = int(data.data)
 
 
-    def goal_pose_callback(self, data):
-        if self.bebop_state == 6 and self.stateMachine == 0:
-            self.positions = []
-            self.positions.append([data.x, data.y])
-            self.stateMachine = 2 #drone guided
+    #def goal_pose_callback(self, data):
+        # if self.bebop_state == 6 and self.stateMachine == 0:
+        #     self.positions = []
+        #     self.positions.append([data.x, data.y])
+        #     self.stateMachine = 2 #drone guided
             #print("goal pose callback")
 
     def camera_callback(self, data):

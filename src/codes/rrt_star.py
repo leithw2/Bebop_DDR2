@@ -56,7 +56,7 @@ class Utils:
 
     def is_inside_obs(self, node):
         delta = self.delta
-        if(self.img[int(node.y)][int(node.x)] <= 200):
+        if(self.img[int(node.y)][int(node.x)] <= 150):
             return True
 
         return False
@@ -101,7 +101,7 @@ class Plotting:
 
         plt.imshow(self.img, cmap=cm.Greys_r)
         #plt.pause(0.001)
-        plt.draw()
+        #plt.draw()
 
     @staticmethod
     def plot_visited(nodelist, animation):
@@ -113,11 +113,12 @@ class Plotting:
                 count += 1
                 if node.parent:
                     plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
-                    plt.gcf().canvas.mpl_connect('key_release_event',
-                                                 lambda event:
-                                                 [exit(0) if event.key == 'escape' else None])
+                    #plt.gcf().canvas.mpl_connect('key_release_event',
+                                                 #lambda event:
+                                                 #[exit(0) if event.key == 'escape' else None])
                     if count % 100 == 0:
-                        plt.pause(0.001)
+                        #plt.pause(0.001)
+                        pass
         else:
             for node in nodelist:
                 if node.parent:
@@ -135,19 +136,20 @@ class Plotting:
                 if V2[k].parent:
                     plt.plot([V2[k].x, V2[k].parent.x], [V2[k].y, V2[k].parent.y], "-g")
 
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                                         lambda event: [exit(0) if event.key == 'escape' else None])
+            #plt.gcf().canvas.mpl_connect('key_release_event',
+            #                             lambda event: [exit(0) if event.key == 'escape' else None])
 
             if k % 2 == 0:
-                plt.pause(0.001)
+                #plt.pause(0.001)
+                pass
 
-        plt.pause(0.01)
+        #plt.pause(0.01)
 
     @staticmethod
     def plot_path(path):
         if len(path) != 0:
             plt.plot([x[0] for x in path], [x[1] for x in path], '-r', linewidth=2)
-            plt.pause(0.01)
+            #plt.pause(0.01)
         plt.show()
 
 class Env:
