@@ -99,7 +99,7 @@ class Plotting:
         plt.axis("equal")
 
 
-        plt.imshow(self.img, cmap=cm.Greys_r)
+        #plt.imshow(self.img, cmap=cm.Greys_r)
         #plt.pause(0.001)
         #plt.draw()
 
@@ -112,7 +112,7 @@ class Plotting:
             for node in nodelist:
                 count += 1
                 if node.parent:
-                    plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
+                    #plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
                     #plt.gcf().canvas.mpl_connect('key_release_event',
                                                  #lambda event:
                                                  #[exit(0) if event.key == 'escape' else None])
@@ -122,8 +122,8 @@ class Plotting:
         else:
             for node in nodelist:
                 if node.parent:
-                    plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
-
+                    #plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
+                    pass
     @staticmethod
     def plot_visited_connect(V1, V2):
         len1, len2 = len(V1), len(V2)
@@ -131,10 +131,12 @@ class Plotting:
         for k in range(max(len1, len2)):
             if k < len1:
                 if V1[k].parent:
-                    plt.plot([V1[k].x, V1[k].parent.x], [V1[k].y, V1[k].parent.y], "-g")
+                    #plt.plot([V1[k].x, V1[k].parent.x], [V1[k].y, V1[k].parent.y], "-g")
+                    pass
             if k < len2:
                 if V2[k].parent:
-                    plt.plot([V2[k].x, V2[k].parent.x], [V2[k].y, V2[k].parent.y], "-g")
+                    #plt.plot([V2[k].x, V2[k].parent.x], [V2[k].y, V2[k].parent.y], "-g")
+                    pass
 
             #plt.gcf().canvas.mpl_connect('key_release_event',
             #                             lambda event: [exit(0) if event.key == 'escape' else None])
@@ -148,9 +150,10 @@ class Plotting:
     @staticmethod
     def plot_path(path):
         if len(path) != 0:
-            plt.plot([x[0] for x in path], [x[1] for x in path], '-r', linewidth=2)
+            #plt.plot([x[0] for x in path], [x[1] for x in path], '-r', linewidth=2)
             #plt.pause(0.01)
-        plt.show()
+            pass
+        #plt.show()
 
 class Env:
     def __init__(self):
@@ -244,7 +247,7 @@ class RrtStar:
                 self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
                 return self.path
             else:
-                #self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
+                self.plotting.animation(self.vertex, self.path, "rrt*, N = " + str(self.iter_max))
 
                 print("fail")
 

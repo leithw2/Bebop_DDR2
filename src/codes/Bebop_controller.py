@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -27,7 +28,7 @@ class Controller:
 
         self.bridge         = CvBridge()
         self.rate           = rospy.Rate(60)
-        self.rate2          = rospy.Rate(6)
+        self.rate2          = rospy.Rate(60)
         self.tic            = 0
         #Define Tag Properties
         self.aruco_dict     = aruco.Dictionary_get(aruco.DICT_4X4_50)
@@ -64,7 +65,11 @@ class Controller:
         self.new_pos( 0,-2,4,0)
         self.new_pos( 0,-4,4,0)
         self.new_pos( 6, 0,4,0)
+        self.new_pos( 0,-6,4,0)
+        self.new_pos( 8,0,4,0)
         self.new_pos( 0,-8,4,0)
+        self.new_pos( 8,-6,4,0)
+        self.new_pos( 6,-8,4,0)
         self.new_pos( 8,-8,4,0)
         self.new_pos( 8, 0,4,0)
 
@@ -147,15 +152,14 @@ class Controller:
 
     def log_state(self, message = ""):
         #self.rate.sleep()
-        if self.tic % 120 == 0:
+        if self.tic % 60 == 0:
             #print("estado actual ", self.get_stateMachine())
-            self.send_state(self.get_stateMachine())
             self.send()
         if self.get_stateMachine() == 6:
             self.send_goal(self.get_goal_pose())
 
-        if self.tic % 60 == 0 and message != "":
-
+        if self.tic % 120 == 0 and message != "":
+            self.send_state(self.get_stateMachine())
             print(message)
 
     def calc_error_pose(self, actual_pose, target_pose):
@@ -238,7 +242,7 @@ class Controller:
             if self.get_stateMachine() == 6: #trackig_robot
                 #self.tagReader(self.frame)
                 self.log_state("Tracking")
-                self.log_state(str(self.get_goal_pose()))
+                #self.log_state(str(self.get_goal_pose()))
 
                 if self.tagReader(self.frame, 1):
                     self.tracker(self.get_robot_tag_pose())
@@ -320,7 +324,7 @@ class Controller:
 
     def send_image(self, image):
 
-        #self.rate.sleep()
+        self.rate.sleep()
         image_message = self.bridge.cv2_to_imgmsg(image, "bgr8")
         try:
             self.image_pub.publish(image_message)
@@ -329,7 +333,7 @@ class Controller:
 
     def send_state(self, state):
 
-        #self.rate.sleep()
+        self.rate.sleep()
         try:
             self.bebop_state_pub.publish(str(state))
         except rospy.ROSInterruptException as ros_e :
@@ -337,7 +341,7 @@ class Controller:
 
     def send_start(self, p):
 
-        #self.rate.sleep()
+        self.rate.sleep()
         point   = Point()
         point.x = p[0]
         point.y = p[1]
@@ -350,7 +354,7 @@ class Controller:
 
     def send_goal(self, p):
 
-        #self.rate.sleep()
+        self.rate.sleep()
         point   = Point()
         point.x = p[0]
         point.y = p[1]
@@ -366,7 +370,7 @@ class Controller:
 
     def sendCommand(self,x,y,z,psi):
 
-        #self.rate.sleep()
+        self.rate.sleep()
         aposition = self.get_actual_pose().position
         z = 4
         self.new_pos(x + aposition.x ,y + aposition.y, z ,psi)
@@ -376,7 +380,7 @@ class Controller:
         pass
 
     def send(self):
-        #self.rate2.sleep()
+        self.rate2.sleep()
         try:
             self.pose_pub.publish(self.target_pose)
         except rospy.ROSInterruptException as ros_e :

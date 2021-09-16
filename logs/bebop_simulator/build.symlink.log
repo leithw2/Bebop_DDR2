@@ -1,12 +1,12 @@
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libposition_controller_with_bebop.so, /home/laptop/catkin_ws/devel/lib/libposition_controller_with_bebop.so)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libwaypoint_filter.so, /home/laptop/catkin_ws/devel/lib/libwaypoint_filter.so)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libposition_controller.so, /home/laptop/catkin_ws/devel/lib/libposition_controller.so)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/libextendedKalmanFilter.so, /home/laptop/catkin_ws/devel/lib/libextendedKalmanFilter.so)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/hovering_example, /home/laptop/catkin_ws/devel/lib/bebop_simulator/hovering_example)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/position_controller_node, /home/laptop/catkin_ws/devel/lib/bebop_simulator/position_controller_node)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/quaternion_to_rpy, /home/laptop/catkin_ws/devel/lib/bebop_simulator/quaternion_to_rpy)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/position_controller_with_bebop_node, /home/laptop/catkin_ws/devel/lib/bebop_simulator/position_controller_with_bebop_node)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/bebop_simulator/waypoint_example, /home/laptop/catkin_ws/devel/lib/bebop_simulator/waypoint_example)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/lib/pkgconfig/bebop_simulator.pc, /home/laptop/catkin_ws/devel/lib/pkgconfig/bebop_simulator.pc)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/share/bebop_simulator/cmake/bebop_simulatorConfig.cmake, /home/laptop/catkin_ws/devel/share/bebop_simulator/cmake/bebop_simulatorConfig.cmake)
-Linked: (/home/laptop/catkin_ws/devel/.private/bebop_simulator/share/bebop_simulator/cmake/bebop_simulatorConfig-version.cmake, /home/laptop/catkin_ws/devel/share/bebop_simulator/cmake/bebop_simulatorConfig-version.cmake)
+Symlinking /home/laptop/catkin_ws/devel/lib/libposition_controller_with_bebop.so
+Symlinking /home/laptop/catkin_ws/devel/lib/libwaypoint_filter.so
+Symlinking /home/laptop/catkin_ws/devel/lib/libposition_controller.so
+Symlinking /home/laptop/catkin_ws/devel/lib/libextendedKalmanFilter.so
+Symlinking /home/laptop/catkin_ws/devel/lib/bebop_simulator/hovering_example
+Symlinking /home/laptop/catkin_ws/devel/lib/bebop_simulator/position_controller_node
+Symlinking /home/laptop/catkin_ws/devel/lib/bebop_simulator/quaternion_to_rpy
+Symlinking /home/laptop/catkin_ws/devel/lib/bebop_simulator/position_controller_with_bebop_node
+Symlinking /home/laptop/catkin_ws/devel/lib/bebop_simulator/waypoint_example
+Symlinking /home/laptop/catkin_ws/devel/lib/pkgconfig/bebop_simulator.pc
+Symlinking /home/laptop/catkin_ws/devel/share/bebop_simulator/cmake/bebop_simulatorConfig.cmake
+Symlinking /home/laptop/catkin_ws/devel/share/bebop_simulator/cmake/bebop_simulatorConfig-version.cmake

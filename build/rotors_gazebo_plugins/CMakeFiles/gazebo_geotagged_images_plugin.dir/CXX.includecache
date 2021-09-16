@@ -6295,6 +6295,8 @@ memory
 -
 gazebo/msgs/msgs.hh
 /usr/include/gazebo-9/gazebo/rendering/gazebo/msgs/msgs.hh
+gazebo/rendering/ogre_gazebo.h
+/usr/include/gazebo-9/gazebo/rendering/gazebo/rendering/ogre_gazebo.h
 gazebo/rendering/RenderTypes.hh
 /usr/include/gazebo-9/gazebo/rendering/gazebo/rendering/RenderTypes.hh
 gazebo/util/system.hh
@@ -12744,11 +12746,11 @@ opencv2/core/core_c.h
 opencv2/highgui/highgui_c.h
 /usr/include/opencv/opencv2/highgui/highgui_c.h
 
-/usr/include/sdformat-6.2/sdf/Assert.hh
+/usr/include/sdformat-6.3/sdf/Assert.hh
 sdf/Exception.hh
-/usr/include/sdformat-6.2/sdf/sdf/Exception.hh
+/usr/include/sdformat-6.3/sdf/sdf/Exception.hh
 
-/usr/include/sdformat-6.2/sdf/Console.hh
+/usr/include/sdformat-6.3/sdf/Console.hh
 fstream
 -
 iostream
@@ -12758,10 +12760,14 @@ memory
 string
 -
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 
-/usr/include/sdformat-6.2/sdf/Element.hh
+/usr/include/sdformat-6.3/sdf/Element.hh
+map
+-
 memory
+-
+set
 -
 string
 -
@@ -12770,21 +12776,21 @@ utility
 vector
 -
 sdf/Param.hh
-/usr/include/sdformat-6.2/sdf/sdf/Param.hh
+/usr/include/sdformat-6.3/sdf/sdf/Param.hh
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 sdf/Types.hh
-/usr/include/sdformat-6.2/sdf/sdf/Types.hh
+/usr/include/sdformat-6.3/sdf/sdf/Types.hh
 
-/usr/include/sdformat-6.2/sdf/Error.hh
+/usr/include/sdformat-6.3/sdf/Error.hh
 iostream
 -
 string
 -
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 
-/usr/include/sdformat-6.2/sdf/Exception.hh
+/usr/include/sdformat-6.3/sdf/Exception.hh
 cstdint
 -
 iostream
@@ -12796,17 +12802,17 @@ sstream
 string
 -
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 
-/usr/include/sdformat-6.2/sdf/Filesystem.hh
+/usr/include/sdformat-6.3/sdf/Filesystem.hh
 memory
 -
 string
 -
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 
-/usr/include/sdformat-6.2/sdf/Param.hh
+/usr/include/sdformat-6.3/sdf/Param.hh
 boost/any.hpp
 -
 boost/variant.hpp
@@ -12832,21 +12838,21 @@ vector
 ignition/math.hh
 -
 sdf/Console.hh
-/usr/include/sdformat-6.2/sdf/sdf/Console.hh
+/usr/include/sdformat-6.3/sdf/sdf/Console.hh
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 sdf/Types.hh
-/usr/include/sdformat-6.2/sdf/sdf/Types.hh
+/usr/include/sdformat-6.3/sdf/sdf/Types.hh
 
-/usr/include/sdformat-6.2/sdf/Root.hh
+/usr/include/sdformat-6.3/sdf/Root.hh
 string
 -
 sdf/Types.hh
-/usr/include/sdformat-6.2/sdf/sdf/Types.hh
+/usr/include/sdformat-6.3/sdf/sdf/Types.hh
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 
-/usr/include/sdformat-6.2/sdf/SDFImpl.hh
+/usr/include/sdformat-6.3/sdf/SDFImpl.hh
 functional
 -
 memory
@@ -12854,15 +12860,15 @@ memory
 string
 -
 sdf/Param.hh
-/usr/include/sdformat-6.2/sdf/sdf/Param.hh
+/usr/include/sdformat-6.3/sdf/sdf/Param.hh
 sdf/Element.hh
-/usr/include/sdformat-6.2/sdf/sdf/Element.hh
+/usr/include/sdformat-6.3/sdf/sdf/Element.hh
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 sdf/Types.hh
-/usr/include/sdformat-6.2/sdf/sdf/Types.hh
+/usr/include/sdformat-6.3/sdf/sdf/Types.hh
 
-/usr/include/sdformat-6.2/sdf/Types.hh
+/usr/include/sdformat-6.3/sdf/Types.hh
 algorithm
 -
 cmath
@@ -12876,29 +12882,29 @@ string
 vector
 -
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 sdf/Error.hh
-/usr/include/sdformat-6.2/sdf/sdf/Error.hh
+/usr/include/sdformat-6.3/sdf/sdf/Error.hh
 
-/usr/include/sdformat-6.2/sdf/World.hh
+/usr/include/sdformat-6.3/sdf/World.hh
 string
 -
 sdf/Element.hh
-/usr/include/sdformat-6.2/sdf/sdf/Element.hh
+/usr/include/sdformat-6.3/sdf/sdf/Element.hh
 sdf/Types.hh
-/usr/include/sdformat-6.2/sdf/sdf/Types.hh
+/usr/include/sdformat-6.3/sdf/sdf/Types.hh
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 
-/usr/include/sdformat-6.2/sdf/parser.hh
+/usr/include/sdformat-6.3/sdf/parser.hh
 string
 -
 sdf/SDFImpl.hh
-/usr/include/sdformat-6.2/sdf/sdf/SDFImpl.hh
+/usr/include/sdformat-6.3/sdf/sdf/SDFImpl.hh
 sdf/system_util.hh
-/usr/include/sdformat-6.2/sdf/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/sdf/system_util.hh
 
-/usr/include/sdformat-6.2/sdf/sdf.hh
+/usr/include/sdformat-6.3/sdf/sdf.hh
 sdf/Assert.hh
 -
 sdf/Console.hh
@@ -12928,9 +12934,9 @@ sdf/World.hh
 sdf/sdf_config.h
 -
 
-/usr/include/sdformat-6.2/sdf/sdf_config.h
+/usr/include/sdformat-6.3/sdf/sdf_config.h
 
-/usr/include/sdformat-6.2/sdf/system_util.hh
+/usr/include/sdformat-6.3/sdf/system_util.hh
 
 /usr/local/include/eigen3/Eigen/Cholesky
 Core

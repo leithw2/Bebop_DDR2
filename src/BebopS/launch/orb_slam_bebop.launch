@@ -3,9 +3,9 @@
 <launch>
     <arg name="name" default="bebop"/>
     <arg name="plotName" default="bebopPlots"/>
-    <arg name="x" default="4.0" />
-    <arg name="y" default="6.0" />
-    <arg name="z" default="1.5" />
+    <arg name="x" default="1.0" />
+    <arg name="y" default="1.0" />
+    <arg name="z" default="6.0" />
     <arg name="use_sim_time" default="true"/>
     <arg name="world_name" default="basic"/>
     <arg name="wind_force" default="0.25"/>
@@ -129,10 +129,22 @@
     <node name="angular_velocity_errors_plot" pkg="rqt_plot" type="rqt_plot" args="--clear-config /$(arg name)/angularAndAngularVelocityErrors/twist/twist/linear" output="screen" />
    </group>
 
-    <node pkg="tf" type="static_transform_publisher" name="camera_drone_broadcaster" args=" 0 0 0 0 1.5708 0 base_link bebop/camera_link 100" />
-    <node pkg="tf" type="static_transform_publisher" name="camera_ddr_broadcaster" args=" 0 0 .2 -1.57079632679 0 -1.57079632679 base_link camera_link 100" />
-
-    <!--node pkg="bebop_simulator" name="rrt_star_node_drone" type="rrt_star_node_drone.py" output="screen" /-->
-<!--rosrun tf static_transform_publisher 0 0 .2 1.57079632679 0 0 odom camera_depth_frame 100  -->
+   
+    <include file="$(find orb_slam2_ros)/ros/launch/orb_slam2_r200_mono.launch" />
+    <node pkg="tf" type="static_transform_publisher" name="camera_drone_broadcaster" args=" 0 0 0 0 1.5708 0 base_link bebop/camera_link 150" />
+    
+    <node pkg="codes" name="Bebop_controller" type="Bebop_controller.py" output="screen" />
+    <node pkg="codes" name="Bebop_interface" type="Bebop_interface.py" output="screen" />
+    <node pkg="codes" name="project_point_z" type="project_point_z.py" output="screen" />
+    <node pkg="codes" name="rrt_star_node_drone" type="rrt_star_node_drone.py" output="screen" />
+    
+<!--
+<node pkg="tf" type="static_transform_publisher" name="camera_drone_broadcaster" args=" 0 0 0 0 1.5708 0 base_link bebop/camera_link 150" />
+""
+<node pkg="codes" name="rrt_star_node_drone" type="rrt_star_node_drone.py" output="screen" />
+<node pkg="tf" type="static_transform_publisher" name="camera_ddr_broadcaster" args=" 0 0 .2 -1.57079632679 0 -1.57079632679 base_link camera_link 100" />
+  -->
 
 </launch>
+
+

@@ -160,17 +160,19 @@ class pointCloud:
 
     def callback_pose(self,data):
         self.pose = data.pose
+
         #print(self.bebop_state)
         if self.bebop_state == 4:
             self.goalx = 1
             self.goaly = self.pose.position.y
             self.goalz = self.pose.position.z
+            #print(data.pose)
 
         if self.bebop_state == 5 and self.goalx == 0 and self.goaly == 0:
             self.goalx = 1
             self.goaly = self.pose.position.y
             self.goalz = self.pose.position.z
-            print(data.pose)
+            #print(data.pose)
 
         self.startx = 1
         self.starty = self.pose.position.y
@@ -211,7 +213,7 @@ class pointCloud:
         meanz = np.mean(cloud_points.T[2])
 
         #print(cloud_points[0])
-        #print(meanx, meany)
+        #print(meanz)
         vec =[-meanx,-meany,self.z] #
         #vec =[0,0.0,self.z] #
 
@@ -291,24 +293,31 @@ class pointCloud:
 
 
         uv = np.flip(uv,0)
-        #start_image[0] = 1080 - start_image[0]
-        start_image[1] = 1080 - start_image[1]
-        #goal_image[0] = 1080 - goal_image[0]
-        goal_image[1] = 1080 - goal_image[1]
-        #print(uv)
+        start_image[0] = int(start_image[0])
+        start_image[1] = int(1080 - start_image[1])
+        goal_image[0]  = int(goal_image[0])
+        goal_image[1]  = int(1080 - goal_image[1])
+
+        # uv[int(start_image[0])][int(start_image[1])] = 2000
+        # uv[int(goal_image[0] )][int(goal_image[1] )] = 1000
 
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(10,10))
         uv = cv2.dilate(uv,kernel,iterations = 2)
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
         uv = cv2.erode(uv,kernel,iterations = 2)
 
+
+
+        # print(uv[int(start_image[0])][int(start_image[1])])
+        # print(start_image[0], start_image[1])
+
         self.send_goal(goal_image)
         self.send_start(start_image)
         self.send_image_map(uv)
 
-        #plt.imshow(np.reshape(uv,(height,width)),origin='lower')
-        #plt.pause(.001)
-        #plt.cla()
+        # plt.imshow(np.reshape(uv,(height,width)),origin='lower')
+        # plt.pause(.001)
+        # plt.cla()
         #print(np.array(data.data).shape)
 
         pass

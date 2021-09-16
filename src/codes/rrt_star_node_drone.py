@@ -35,7 +35,8 @@ class RRT_ROS:
     def __init__(self):
 
         self.Odometry = False
-        self.rate = rospy.Rate(0.05)
+        self.rate = rospy.Rate(1)
+        self.rate = rospy.Rate(1)
         self.bridge = CvBridge()
 
         self.rrt_star = RrtStar((0,0), (0,0), 1500, 0.1, 1000, 3000)
@@ -47,6 +48,8 @@ class RRT_ROS:
         self.x_goal = []
         self.real_start = []
         self.real_goal = []
+        self.path = []
+        self.path_final = []
 
         self.img2 = []
 
@@ -67,15 +70,14 @@ class RRT_ROS:
         return node
 
 
-    def callback(self, data):
+    def rrt_calc(self, data):
         pass
 
     def callback_image(self, data):
         print("callback imagen")
         print(self.x_start != [], self.x_goal != [], self.real_goal != [])
-        if self.x_start != [] and self.x_goal != [] and self.real_goal != []:
-            print("AAAAAAAAAAAAAAAAAA")
-            path=[]
+        if self.x_start != [] and self.x_goal != [] and self.real_goal != [] and self.path ==[]:
+            self.path=[]
 
             #self.example_function()
             map = np.array(data.data)
@@ -97,9 +99,9 @@ class RRT_ROS:
             #cv2.imshow('image',self.img)
             #cv2.waitKey(0)
 
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
 
-            self.img = cv2.erode(self.img,kernel,iterations = 3)
+            self.img = cv2.erode(self.img,kernel,iterations = 4)
             #self.img = cv2.dilate(self.img,kernel,iterations = 1)
 
             self.rrt_star.env.img = self.img
@@ -128,42 +130,32 @@ class RRT_ROS:
             #x_start = (18, 20)  # Starting node
             #x_goal = (190, 125)
             self.rrt_star.selectStartGoalPoints(self.x_start , self.x_goal )
-            path = self.rrt_star.planning()
+            self.path = self.rrt_star.planning()
 
-            if path is None:
+            if self.path is None:
                 print("Cannot find path")
 
-            if path is not None:
+            if self.path != []:
                 print("found path!!")
 
-                odomcoor = np.array(path)
+                odomcoor = np.array(self.path)
                 odomcoorx = np.array([odomcoor[:,0] + self.positionmap[0]])*d_x
                 odomcoory = np.array([odomcoor[:,1] + self.positionmap[1]])*d_y
                 odomcoor = np.append(odomcoorx , odomcoory, axis= 0)
-                path = odomcoor.T
+                self.path_final = odomcoor.T
                 print 'Final path:', odomcoor.T
 
-                self.send(path[::-1])
-
-
-                img2 = np.fromstring(self.rrt_star.plotting.fig.canvas.tostring_rgb(), dtype=np.uint8,
-                      sep='')
-
-                ncols, nrows = self.rrt_star.plotting.fig.canvas.get_width_height()
-                img2  = img2.reshape(self.rrt_star.plotting.fig.canvas.get_width_height()[::-1] + (3,))
-
-                self.img2 = cv2.cvtColor(img2,cv2.COLOR_RGB2BGR)
+                # img2 = np.fromstring(self.rrt_star.plotting.fig.canvas.tostring_rgb(), dtype=np.uint8,
+                #       sep='')
+                #
+                # ncols, nrows = self.rrt_star.plotting.fig.canvas.get_width_height()
+                # img2  = img2.reshape(self.rrt_star.plotting.fig.canvas.get_width_height()[::-1] + (3,))
+                #
+                # self.img2 = cv2.cvtColor(img2,cv2.COLOR_RGB2BGR)
                 #rospy.signal_shutdown("End node")
 
-                return path
+                return self.path_final
 
-
-
-        # NoneType = type(None)
-        #
-        # if type(path) != NoneType:
-        #     self.send(path)
-        # pass
 
 
         #self.example_function(data.pose.pose, 'map', 'odom')
@@ -177,8 +169,10 @@ class RRT_ROS:
 
     def callback_map_goal(self, data):
         self.x_goal = Node([data.x, data.y])
-        if self.img2 != []:
-            self.send_image_path(self.img2)
+        if self.img != []:
+            self.send_image_path(self.img)
+        if self.path_final != []:
+            self.send(self.path_final[::-1])
         #print("callback_goal_map")
 
     def callback_map_start(self, data):
@@ -186,6 +180,18 @@ class RRT_ROS:
         #print("callback_start_map")
 
     def send_image_path(self, path_image):
+        self.rate.sleep()
+        if self.path_final != []:
+            pts = path_final.reshape((-1, 1, 2))
+            isClosed = True
+
+            # Blue color in BGR
+            color = (255, 0, 0)
+
+            # Line thickness of 2 px
+            thickness = 2
+
+            path_image = cv2.polylines(path_image, [pts], isClosed, color, thickness)
 
         image_message = self.bridge.cv2_to_imgmsg(path_image, "bgr8")
         try:
@@ -193,22 +199,28 @@ class RRT_ROS:
         except rospy.ROSInterruptException as ros_e :
             print(ros_e)
 
-        #self.rate.sleep()
 
     def send(self, path):
         """
         Publish the ROS message containing the waypoints
         """
+        self.rate.sleep()
         msg = Path()
-        msg.header.frame_id = "path"
+        msg.header.frame_id = "world"
         msg.header.stamp = rospy.Time.now()
+        i=0
         for pos in path:
             pose = PoseStamped()
+            pose.header.seq = i
+            pose.header.frame_id = "world"
+            pose.header.stamp= rospy.Time.now()
             pose.pose.position.x = pos[0]
             pose.pose.position.y = pos[1]
             pose.pose.position.z = 0
 
             msg.poses.append(pose)
+            i+=1
+
 
         try:
             self.path_pub.publish(msg)

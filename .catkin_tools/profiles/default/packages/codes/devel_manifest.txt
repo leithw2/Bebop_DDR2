@@ -1,0 +1,5 @@
+codes
+/home/laptop/catkin_ws/devel/.private/codes/cmake.lock /home/laptop/catkin_ws/devel/./cmake.lock
+/home/laptop/catkin_ws/devel/.private/codes/lib/pkgconfig/codes.pc /home/laptop/catkin_ws/devel/lib/pkgconfig/codes.pc
+/home/laptop/catkin_ws/devel/.private/codes/share/codes/cmake/codesConfig.cmake /home/laptop/catkin_ws/devel/share/codes/cmake/codesConfig.cmake
+/home/laptop/catkin_ws/devel/.private/codes/share/codes/cmake/codesConfig-version.cmake /home/laptop/catkin_ws/devel/share/codes/cmake/codesConfig-version.cmake

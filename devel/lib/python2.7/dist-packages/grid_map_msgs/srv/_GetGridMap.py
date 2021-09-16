@@ -1,1 +1,0 @@
-/home/laptop/catkin_ws/devel/.private/grid_map_msgs/lib/python2.7/dist-packages/grid_map_msgs/srv/_GetGridMap.py

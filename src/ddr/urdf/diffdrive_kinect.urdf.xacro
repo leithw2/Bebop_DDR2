@@ -33,7 +33,7 @@
 
 
 
-  <link name="base_link">
+  <link name="ddr/base_link">
     <visual>
       <geometry>
         <box size="${bodylen} ${bodylen} ${bodylen/2}"/>
@@ -47,7 +47,7 @@
     <xacro:default_inertial mass="50"/>
   </link>
 
-  <gazebo reference="base_link">
+  <gazebo reference="ddr/base_link">
     <material>marker2/diffuce</material>
   </gazebo>
 
@@ -71,7 +71,7 @@
     </link>
     <joint name="${prefix}_${suffix}_wheel_joint" type="continuous">
       <axis xyz="0 1 0" rpy="0 0 0" />
-      <parent link="base_link"/>
+      <parent link="ddr/base_link"/>
       <child link="${prefix}_${suffix}_wheel"/>
       <origin xyz="${x*0.075} ${y*0.11} -${0.06}" rpy="0 0 0"/>
     </joint>
@@ -113,12 +113,12 @@
   <joint name="camera_joint" type="continuous">
     <axis xyz="0 1 0" />
     <origin xyz="${camera_link/2 + width+.05} 0 ${bodylen/2}" rpy="0 0 0"/>
-    <parent link="base_link"/>
-    <child link="camera_link"/>
+    <parent link="ddr/base_link"/>
+    <child link="ddr/camera_link"/>
   </joint>
 
   <!-- Camera -->
-  <link name="camera_link">
+  <link name="ddr/camera_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -159,7 +159,7 @@
   </gazebo>
 
       <!--camera -->
-    <gazebo reference="camera_link">
+    <gazebo reference="ddr/camera_link">
 	  <sensor name="camera" type="depth">
 	    <update_rate>60</update_rate>
 	    <camera>
@@ -188,7 +188,7 @@
               <depthImageTopicName>/rrbot/camera/depth/image_raw</depthImageTopicName>
 	      <depthImageCameraInfoTopicName>/rrbot/camera/depth/camera_info</depthImageCameraInfoTopicName>
 	      <pointCloudTopicName>/rrbot/camera/depth/points</pointCloudTopicName>
-	      <frameName>/camera_link</frameName>
+	      <frameName>/ddr/camera_link</frameName>
 	      <pointCloudCutoff>0.1</pointCloudCutoff>
 	      <pointCloudCutoffMax>4.0</pointCloudCutoffMax>
 	      <distortionK1>0</distortionK1>

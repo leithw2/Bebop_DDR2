@@ -1,4 +1,0 @@
-[35m[1mScanning dependencies of target grid_map_sdf[0m
-[ 50%] [32mBuilding CXX object CMakeFiles/grid_map_sdf.dir/src/SignedDistanceField.cpp.o[0m
-[100%] [32m[1mLinking CXX shared library /home/laptop/catkin_ws/devel/.private/grid_map_sdf/lib/libgrid_map_sdf.so[0m
-[100%] Built target grid_map_sdf

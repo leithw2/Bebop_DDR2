@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import rospy
 import tf
 import math
@@ -21,7 +22,7 @@ class Trajectory():
 
     def pose_callback(self,data):
         self.pose = data
-        rospy.loginfo('data get')
+        #rospy.loginfo('data get')
         self.update(self.pose)
 
 
@@ -58,7 +59,7 @@ class Trajectory():
         point = MultiDOFJointTrajectoryPoint([transforms],[velocities],[accelerations],rospy.Duration(0.1))
         self.traj.points.append(point)
         self.traj_pub.publish(self.traj)
-        rospy.loginfo('data post')
+        #rospy.loginfo('data post')
         self.r.sleep()
 
         return

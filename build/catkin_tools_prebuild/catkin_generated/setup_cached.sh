@@ -13,4 +13,4 @@ export PKG_CONFIG_PATH='/opt/ros/melodic/lib/pkgconfig'
 export PWD='/home/laptop/catkin_ws/build/catkin_tools_prebuild'
 export PYTHONPATH='/opt/ros/melodic/lib/python2.7/dist-packages'
 export ROSLISP_PACKAGE_DIRECTORIES="/home/laptop/catkin_ws/devel/.private/catkin_tools_prebuild/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
-export ROS_PACKAGE_PATH="/home/laptop/catkin_ws/build/catkin_tools_prebuild:$ROS_PACKAGE_PATH"
+export ROS_PACKAGE_PATH="/home/laptop/catkin_ws/build/catkin_tools_prebuild:/home/laptop/catkin_ws/src/codes:$ROS_PACKAGE_PATH"

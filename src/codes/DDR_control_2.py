@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy as np
 from cv2 import aruco
 import matplotlib.pyplot as plt
@@ -33,7 +34,7 @@ class controller():
         self.u = 0
         self.w = 0
         self.moveState = 0
-        self.stateMachine = 0
+        self.stateMachine = 1
         self.bebop_state = 0
         self.positions = []
         self.path = []
@@ -47,7 +48,7 @@ class controller():
         #self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
         self.path_sub = rospy.Subscriber("/rrt/path", Path,self.path_callback)
-        self.path_sub = rospy.Subscriber("/rrt/path_drone", Path,self.drone_path_callback)
+        #self.path_sub = rospy.Subscriber("/rrt/path_drone", Path,self.drone_path_callback)
         self.kinect_scan_sub = rospy.Subscriber("/kinect_scan", LaserScan, self.laserScan_callback)
 
     def search_next(self, positions):
@@ -61,7 +62,7 @@ class controller():
         if self.moveState != 3 :
             if self.moveState == 0 and positions :
                 #self.target_pose = positions #Debugging
-                self.target_pose = positions.pop(0)
+                self.target_pose = positions.pop()
 
                 self.moveState = 1
 
@@ -151,22 +152,22 @@ class controller():
             for pose in data.poses:
                 point = [pose.pose.position.x, pose.pose.position.y]
                 self.path.append(point)
-
+            self.path.reverse()
             #print (self.positions)
             self.havePath = True
 
-    def drone_path_callback(self, data):
-
-        if self.stateMachine != 1: #following drone path
-            self.drone_path = []
-
-            for pose in data.poses:
-                point = [-pose.pose.position.y, -pose.pose.position.x]
-                self.drone_path.append(point)
-
-            #print (self.positions)
-            self.haveDronePath = True
-            self.stateMachine = 2
+    # def drone_path_callback(self, data):
+    #
+    #     if self.stateMachine != 1: #following drone path
+    #         self.drone_path = []
+    #
+    #         for pose in data.poses:
+    #             point = [-pose.pose.position.y, -pose.pose.position.x]
+    #             self.drone_path.append(point)
+    #
+    #         #print (self.positions)
+    #         self.haveDronePath = True
+    #         self.stateMachine = 2
 
 
     def laserScan_callback(self, data):
@@ -178,11 +179,11 @@ class controller():
                 self.stateMachine = 1 #following path
                 print("change to following path")
                 return
-            # if self.stateMachine == 1:#following path
-            #     self.positions = []
-            #     self.stateMachine = 4 #stand by
-            #     print("Fail.........")
-            #     return
+            if self.stateMachine == 1:#following path
+                self.positions = []
+                self.stateMachine = 4 #stand by
+                print("Fail.........")
+                return
 
             if self.stateMachine == 0:
                 print("manual mode Fail.........")

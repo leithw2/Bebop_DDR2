@@ -1,1 +1,0 @@
-/home/laptop/catkin_ws/devel/.private/grid_map_octomap/lib/pkgconfig/grid_map_octomap.pc

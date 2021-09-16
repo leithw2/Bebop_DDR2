@@ -1,0 +1,8 @@
+prefix=/home/laptop/catkin_ws/devel/.private/codes
+
+Name: codes
+Description: Description of codes
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
