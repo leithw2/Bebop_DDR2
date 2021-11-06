@@ -48,10 +48,12 @@ class RRT_ROS:
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.positionmap = [0,0]
         self.object_target = Node([0,0])
+        self.robot_pose = Node([0,0])
         self.x_start = Node([0,0])
         self.x_goal = Node([0,0])
         self.wayPoints = []
         self.haveWayPoints = False
+        self.haveMap = False
 
 
         self.path_pub = rospy.Publisher("/rrt/path",Path, queue_size=1)
@@ -68,10 +70,7 @@ class RRT_ROS:
     def example_function(self, pose, to, from_):
 
         try:
-            #print("trying..")
             trans = self.tfBuffer.lookup_transform(to, from_, rospy.Time())
-            #print("trying.. end")
-            #print(trans)
             ps = PoseStamped()
             ps.pose = pose
             ps.header.frame_id = 'odom'
@@ -81,78 +80,32 @@ class RRT_ROS:
             pass
 
 
+    def getWaypointRandomPose(self):
 
-    # def debugging(self):
-    #
-    #
-    #     self.robot_pose = np.array([10,10])
-    #     self.robot_target = np.array([100,190])
-    #     self.positionmap = [0,0]
-    #
-    #     self.img = imread(MAP_IMG, mode="L")
-    #
-    #     kernel = np.ones((4,4),np.uint8)
-    #     self.img = cv2.erode(self.img,kernel,iterations = 2)
-    #     self.img = cv2.dilate(self.img,kernel,iterations = 2)
-    #
-    #
-    #     size = (np.shape(self.img))
-    #     self.rrt_star.env.img = self.img
-    #     self.rrt_star.utils.img = self.img
-    #     self.rrt_star.plotting.img = self.img
-    #     self.rrt_star.x_range = (0,size[1])
-    #     self.rrt_star.y_range = (0,size[0])
-    #
-    #     self.rrt_star.env.x_range = self.rrt_star.x_range
-    #     self.rrt_star.env.y_range = self.rrt_star.y_range
-    #
-    #
-    #
-    #     robposex = 35.0
-    #     robposey = 28.0
-    #     start_time = time.time()
-    #     tarpose = self.getTargetRandomPose()
-    #     print("Tiempo: ", time.time() - start_time)
-    #
-    #     print("target pose")
-    #     print(tarpose.x, tarpose.y)
-    #     tarposex = tarpose.x
-    #     tarposey = tarpose.y
-    #
-    #     self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
-    #     self.robot_target = np.array([tarposex - self.positionmap[0], tarposey - self.positionmap[1]])
-    #
-    #
-    #     self.x_start = Node(self.robot_pose)  # Starting node
-    #     self.x_goal = Node(self.robot_target)
-    #
-    #     self.rrt_star.selectStartGoalPoints(self.x_start, self.x_goal )
-    #
-    #     path = self.rrt_star.planning()
-    #
-    #     #self.rrt.selectStartGoalPoints(Node(x_start), Node(x_goal) )
-    #
-    #     if path is None:
-    #         print("Cannot find path")
-    #         while True:
-    #             start_time = time.time()
-    #
-    #             tarpose = self.getTargetRandomPose()
-    #             print("Tiempo: ", time.time() - start_time)
-    #             pass
-    #
-    #     else:
-    #         print("found path!!")
-    #         return path
-
-    def getTargetRandomPose(self):
-
-        delta = 5
+        delta = 10
         min_dist = sys.maxint
         node_dist_min = []
-        for k in range(10000):
-            node = Node((np.random.randint(self.rrt_star.x_range[0] + delta, self.rrt_star.x_range[1] - delta),
-                         np.random.randint(self.rrt_star.y_range[0] + delta, self.rrt_star.y_range[1] - delta)))
+        point = self.object_target
+        zonex = int(point.y)
+        zoney = int(point.x)
+        zonex = self.width
+        zoney = self.height
+
+        for k in range(1000):
+            # node_x = np.random.randint(zonex - delta, zonex + delta)
+            # if node_x >= self.width:
+            #     node_x = self.width-1
+            # if node_x < 0:
+            #     node_x=0
+            #
+            # node_y = np.random.randint(zoney - delta, zoney + delta)
+            # if node_y >= self.height:
+            #     node_y = self.height-1
+            # if node_y < 0:
+            #     node_y=0
+            node_x = np.random.randint(0, zonex)
+            node_y = np.random.randint(0, zoney)
+            node = Node((node_x,node_y ))
 
             if(self.img[int(node.y)][int(node.x)] >= 200):
                 my_list1 = np.array(self.neighbors(2, node.y, node.x))
@@ -162,85 +115,27 @@ class RRT_ROS:
                     #print("continue")
                     continue
 
-                if((my_list1 > 100).any() and (my_list1 <= 200).any()):
-
-                    if ((node.x >= (self.object_target.x - delta)) and (node.x < (self.object_target.x + delta))):
-                        if ((node.y >= (self.object_target.y - delta)) and (node.y < (self.object_target.y + delta))):
-                            return self.object_target
+                if((my_list1 > 100).any() and (my_list1 <= 200).any()): #if gray
 
                     robotToNode = self.rrt_star.utils.get_dist(self.x_start,node)
                     nodeToObject = self.rrt_star.utils.get_dist(node, self.object_target)
 
-                    if robotToNode < delta * 1 or robotToNode >= delta * 50 :
-                        print("node ", node.y, node.x)
-                        print("to short", robotToNode)
-                        continue
+                    if robotToNode < delta * 15 or robotToNode >= delta * 500 :
+                        #print("node ", node.y, node.x)
+                        #print("to short", robotToNode)
+                        pass
 
                     if (robotToNode + nodeToObject < min_dist):
                         min_dist = robotToNode + nodeToObject #if gray
-                        #print(my_list1)
-                        #print(node.x, node.y)
-                        #print("shortest",min_dist)
+                        print(my_list1)
+                        print(node.x, node.y)
+                        print("shortest",min_dist)
                         node_dist_min = node
 
 
 
         if node_dist_min != []:
-            #print("shortest_ node ",node_dist_min.y, node_dist_min.x)
-            #print("shortest",self.rrt_star.utils.get_dist(self.x_start,node_dist_min))
-            return node_dist_min
-        else:
-            print("fail no point avalible")
-            return node_dist_min
-
-    def getWaypointRandomPose(self):
-
-        delta = 5
-        min_dist = sys.maxint
-        node_dist_min = []
-        point = self.wayPoints[-3]
-        print("Goal position")
-        print(point)
-        zonex = int(point[1]/self.respix - self.positionmap[0])
-        zoney = int(point[0]/self.respix - self.positionmap[1])
-        print("Goal position in new map")
-
-        print(zonex)
-        print(zoney)
-
-        for k in range(100):
-            node = Node((np.random.randint(zonex + delta, zonex - delta),
-                         np.random.randint(zoney + delta, zoney - delta)))
-
-            if(self.img[int(node.y)][int(node.x)] >= 200):
-                my_list1 = np.array(self.neighbors(2, node.y, node.x))
-                #print(my_list1)
-
-                if((my_list1 <= 100).any()): #if black
-                    #print("continue")
-                    continue
-
-                if((my_list1 > 100).any() and (my_list1 <= 200).any()):
-
-                    # robotToNode = self.rrt_star.utils.get_dist(self.x_start,node)
-                    # nodeToObject = self.rrt_star.utils.get_dist(node, self.object_target)
-                    #
-                    # if robotToNode < delta * 15 or robotToNode >= delta * 500 :
-                    #     print("node ", node.y, node.x)
-                    #     print("to short", robotToNode)
-                    #     continue
-                    #
-                    # if (robotToNode + nodeToObject < min_dist):
-                    #     min_dist = robotToNode + nodeToObject #if gray
-                    #     #print(my_list1)
-                    #     #print(node.x, node.y)
-                    #     #print("shortest",min_dist)
-                    node_dist_min = node
-
-
-
-        if node_dist_min != []:
-            #print("shortest_ node ",node_dist_min.y, node_dist_min.x)
+            print("shortest_ node ",node_dist_min.y, node_dist_min.x)
             #print("shortest",self.rrt_star.utils.get_dist(self.x_start,node_dist_min))
             return node_dist_min
         else:
@@ -252,37 +147,21 @@ class RRT_ROS:
         a = self.img
         return [[a[i][j] if  i >= 0 and i < len(a) and j >= 0 and j < len(a[0]) else 0
             for j in range(columnNumber-1-radius, columnNumber+radius)]
-                for i in range(rowNumber-1-radius, rowNumber+radius)]
+                for i in range(rowNumber-1-radius,rowNumber+radius)]
 
     def neighborsToBlack(self, radius, rowNumber, columnNumber):
         for j in range(columnNumber-1-radius, columnNumber+radius):
             for i in range(rowNumber-1-radius, rowNumber+radius):
                 self.img[i][j] = 0
 
+    def neighborsToWhite(self, radius, rowNumber, columnNumber):
+        for j in range(columnNumber-1-radius, columnNumber+radius):
+            for i in range(rowNumber-1-radius, rowNumber+radius):
+                self.img[i][j] = 255
+
 
     def callback(self, data):
-        self.pathPlanning(data)
-
-    def callback_drone_path(self, data):
-        self.wayPoints = []
-        for pose in data.poses:
-            point = Node([pose.pose.position.x/self.respix, pose.pose.position.y/self.respix])
-            self.wayPoints.append(point)
-
-        #print (self.positions)
-        #self.object_target = self.wayPoints[1]
-        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-        print(self.object_target.x, self.object_target.y )
-        self.haveWayPoints= True
-
-    def pathPlanning(self, data):
-
-        print("Esperando waypoints")
-
-        if self.Odometry: #and self.haveWayPoints:
-            path=[]
-            print("waypoints recibiodos")
-
+        if not self.haveMap:
             #self.example_function()
             map = np.array(data.data)
             self.width = data.info.width
@@ -294,8 +173,6 @@ class RRT_ROS:
             self.z=0
             self.img = np.array(np.uint8(np.resize(map, [self.height,self.width])))
 
-
-
             self.img = np.where(self.img == 255, 102, self.img)
             self.img = np.where(self.img == 0, 255, self.img)
 
@@ -306,45 +183,87 @@ class RRT_ROS:
 
             self.img = cv2.erode(self.img,kernel,iterations = 1)
             #self.img = cv2.dilate(self.img,kernel,iterations = 1)
-
             self.rrt_star.env.img = self.img
             self.rrt_star.utils.img = self.img
             self.rrt_star.plotting.img = self.img
             self.rrt_star.x_range = (0,size[1])
             self.rrt_star.y_range = (0,size[0])
 
+            self.pathPlanning(data)
+
+    def callback_drone_path(self, data):
+
+        if not self.haveWayPoints:
+            self.wayPoints = []
+            for pose in data.poses:
+                point = Node([(pose.pose.position.x - self.positionmap[0] )/self.respix,
+                 (pose.pose.position.y - self.positionmap[1])/self.respix])
+                self.wayPoints.append(point)
+
+            #print (self.wayPoints)
+
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            #print(data.poses)
+
+            self.haveWayPoints = True
+
+    def pathPlanning(self, data):
+
+        print("mapa recibido")
+
+        if self.Odometry and self.haveWayPoints:
+            self.haveMap = False
+            path=[]
+            print("waypoints recibiodos")
+
             self.rrt_star.env.x_range = self.rrt_star.x_range
             self.rrt_star.env.y_range = self.rrt_star.y_range
 
-            #print(self.rrt_star.x_range)
-            #print(self.rrt_star.y_range)
+            wayPoint_x = self.wayPoints[-1].x - self.positionmap[1]
+            wayPoint_y = self.wayPoints[-1].y - self.positionmap[0]
+
+            if wayPoint_x >= self.width:
+                wayPoint_x = self.width-1
+            if wayPoint_x < 0:
+                wayPoint_x = 0
+
+            if wayPoint_y >= self.height:
+                wayPoint_y = self.height-1
+            if wayPoint_y < 0:
+                wayPoint_y = 0
+
+            self.object_target.x = wayPoint_x
+            self.object_target.y = wayPoint_y
 
             start_time = time.time()
-            self.object_target.x = self.object_target.x - self.positionmap[0]
-            self.object_target.y = self.object_target.y - self.positionmap[1]
-            tarpose = self.getTargetRandomPose()
-            #tarpose = self.getWaypointRandomPose()
+            print(self.width, self.height)
+            print("waypoint targert")
+            print(self.wayPoints[-1].x, self.wayPoints[-1].y )
+            print(self.object_target.x, self.object_target.y )
+            #tarpose = self.getTargetRandomPose()
+            self.robot_start = np.array([self.robot_pose[1] - self.positionmap[0], self.robot_pose[0] - self.positionmap[1]])
+            self.x_start = Node([self.robot_start[0], self.robot_start[1]])  # Starting node
+
+            tarpose = self.getWaypointRandomPose()
             #print("Tiempo: ", time.time() - start_time)
 
-            #print("target pose")
-            #print(tarpose.x, tarpose.y)
             if tarpose != []:
                 tarposex = tarpose.x
                 tarposey = tarpose.y
             else:
                 return
-            #tarposex = 0
-            #tarposey = 0
 
-            #self.robot_pose = np.array([robposex - self.positionmap[0], robposey - self.positionmap[1]])
+            self.robot_start = np.array([self.robot_pose[1] - self.positionmap[0], self.robot_pose[0] - self.positionmap[1]])
             self.robot_target = np.array([tarposex, tarposey])
-            self.robot_target = np.array([78 , 70])
+            #self.robot_target = np.array([78 , 70])
 
-            #print(self.robot_pose)
-            print(self.robot_target)
+            print("desde:" , self.robot_start)
+            print("hasta:" ,self.robot_target)
 
-            print(self.width)
-            print(self.height)
+            print("desde:" , self.robot_start*self.respix)
+            print("hasta:" ,self.robot_target*self.respix)
+
+
 
             size = (np.shape(self.img))
             self.rrt_star.env.img = self.img
@@ -356,10 +275,23 @@ class RRT_ROS:
             self.rrt_star.env.x_range = self.rrt_star.x_range
             self.rrt_star.env.y_range = self.rrt_star.y_range
 
-            self.x_start = Node(self.robot_pose)  # Starting node
             self.x_goal = Node(self.robot_target)
             #x_start = (18, 20)  # Starting node
             #x_goal = (190, 125)
+
+            print(self.robot_start[0], self.robot_start[1])
+            print(self.x_start.x, self.x_start.y)
+
+            self.neighborsToWhite(4, int(self.x_start.y), int(self.x_start.x))
+            #self.neighborsToWhite(2, int(self.object_target.x), int(self.object_target.y))
+            self.img[int(self.object_target.y)][int(self.object_target.x)] = 180
+            self.img2 = cv2.cvtColor(self.img,cv2.COLOR_RGB2BGR)
+            plt.imshow(self.img2, cmap=cm.Greys_r)
+            plt.pause(1)
+            self.send_image_path(self.img2)
+
+
+
             self.rrt_star.selectStartGoalPoints(self.x_start , self.x_goal )
             path = self.rrt_star.planning()
 
@@ -368,8 +300,8 @@ class RRT_ROS:
                 for i in range(50):
 
                     self.neighborsToBlack(5,tarposey,tarposex)
-                    #plt.imshow(self.img, cmap=cm.Greys_r)
-                    tarpose = self.getTargetRandomPose()
+
+                    tarpose = self.getWaypointRandomPose()
 
                     if tarpose != []:
                         tarposex = tarpose.x
@@ -404,14 +336,15 @@ class RRT_ROS:
                 # ncols, nrows = self.rrt_star.plotting.fig.canvas.get_width_height()
                 # img2  = img2.reshape(self.rrt_star.plotting.fig.canvas.get_width_height()[::-1] + (3,))
                 #
-                # self.img2 = cv2.cvtColor(img2,cv2.COLOR_RGB2BGR)
-                # self.send_image_path(self.img2)
+                #
+
 
                 return path
 
             pass
 
-
+        else:
+            print("Esperando waypoints")
         # NoneType = type(None)
         #
         # if type(path) != NoneType:
@@ -428,14 +361,11 @@ class RRT_ROS:
         if pose is not None:
             self.Odometry = True
             pose = pose.pose.position
-            self.robot_pose = np.array([pose.x /self.respix - self.positionmap[0], pose.y/self.respix  - self.positionmap[1]])
-            #print(pose)
-            #print(self.robot_pose)
+            self.robot_pose = np.array([pose.y /self.respix, pose.x/self.respix])
+
         else:
             self.Odometry = False
-        #print(pose.x,pose.y)
 
-        #self.example_function(data.pose.pose, 'map', 'odom')
     def goal_pose_callback(self, data):
         #self.object_target = Node([data.x/self.respix - self.positionmap[0], data.y/self.respix - self.positionmap[1]])
         pass
@@ -456,14 +386,20 @@ class RRT_ROS:
         """
         msg = Path()
         msg.header.frame_id = "path"
+        msg.header.frame_id = "bebop/base_link"
         msg.header.stamp = rospy.Time.now()
+        i=0
         for pos in path:
             pose = PoseStamped()
+            pose.header.seq = i
+            pose.header.frame_id = "bebop/base_link"
+            pose.header.stamp= rospy.Time.now()
             pose.pose.position.x = pos[0]
             pose.pose.position.y = pos[1]
             pose.pose.position.z = 0
 
             msg.poses.append(pose)
+            i+=1
 
         try:
             self.path_pub.publish(msg)

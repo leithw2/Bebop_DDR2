@@ -48,7 +48,7 @@ class controller():
         #self.image_sub = rospy.Subscriber("/rrbot/camera1/image_raw", Image,self.camera_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
         self.path_sub = rospy.Subscriber("/rrt/path", Path,self.path_callback)
-        self.path_sub = rospy.Subscriber("/rrt/path_drone", Path,self.drone_path_callback)
+        #self.path_sub = rospy.Subscriber("/rrt/path_drone", Path,self.drone_path_callback)
         self.kinect_scan_sub = rospy.Subscriber("/kinect_scan", LaserScan, self.laserScan_callback)
 
     def search_next(self, positions):
@@ -63,7 +63,6 @@ class controller():
             if self.moveState == 0 and positions :
                 #self.target_pose = positions #Debugging
                 self.target_pose = positions.pop(0)
-
                 self.moveState = 1
 
             if self.moveState == 1:
@@ -156,18 +155,19 @@ class controller():
             #print (self.positions)
             self.havePath = True
 
-    def drone_path_callback(self, data):
-
-        if self.stateMachine != 1: #following drone path
-            self.drone_path = []
-
-            for pose in data.poses:
-                point = [-pose.pose.position.y, - pose.pose.position.x]
-                self.drone_path.append(point)
-
-            #print (self.positions)
-            self.haveDronePath = True
-            self.stateMachine = 2
+    # def drone_path_callback(self, data):
+    #
+    #     if self.stateMachine != 1: #following drone path
+    #         self.drone_path = []
+    #
+    #         for pose in data.poses:
+    #             point = [-pose.pose.position.y, - pose.pose.position.x]
+    #             self.drone_path.append(point)
+    #
+    #         #print (self.positions)
+    #         self.drone_path.pop()
+    #         self.haveDronePath = True
+    #         self.stateMachine = 2
 
 
     def laserScan_callback(self, data):
@@ -175,7 +175,7 @@ class controller():
         if any(range <= 0.3 for range in ranges):
 
 
-            if self.stateMachine == 2: #drone guided
+            if self.stateMachine == 0: #drone guided
                 self.stateMachine = 1 #following path
                 print("change to following path")
                 return
@@ -210,23 +210,23 @@ class controller():
             else:
                 print("waiting for path.....")
 
-        if self.stateMachine == 2: # Drone guided
-            if self.haveDronePath:
-                self.positions = self.drone_path
-                self.u = data.twist.twist.linear.x
-                self.w = data.twist.twist.angular.z
-                self.pose = data.pose.pose.position
-                orientation = data.pose.pose.orientation
-                r = [orientation.x,
-                      orientation.y,
-                      orientation.z,
-                      orientation.w]
-                r = R.from_quat(r, normalized = True)
-                self.phi = r.as_euler('xyz',degrees=False)[2]
-                self.search_next(self.positions)
-
-            self.ts = rospy.Time.now().to_sec() - self.time
-            self.time = rospy.Time.now().to_sec()
+        # if self.stateMachine == 2: # Drone guided
+        #     if self.haveDronePath:
+        #         self.positions = self.drone_path
+        #         self.u = data.twist.twist.linear.x
+        #         self.w = data.twist.twist.angular.z
+        #         self.pose = data.pose.pose.position
+        #         orientation = data.pose.pose.orientation
+        #         r = [orientation.x,
+        #               orientation.y,
+        #               orientation.z,
+        #               orientation.w]
+        #         r = R.from_quat(r, normalized = True)
+        #         self.phi = r.as_euler('xyz',degrees=False)[2]
+        #         self.search_next(self.positions)
+        #
+        #     self.ts = rospy.Time.now().to_sec() - self.time
+        #     self.time = rospy.Time.now().to_sec()
 
     def bebop_state_callback(self, data):
         self.bebop_state = int(data.data)

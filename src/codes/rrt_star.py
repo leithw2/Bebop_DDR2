@@ -56,8 +56,12 @@ class Utils:
 
     def is_inside_obs(self, node):
         delta = self.delta
-        if(self.img[int(node.y)][int(node.x)] <= 150):
-            return True
+        try:
+            if(self.img[int(node.y)][int(node.x)] <= 150):
+                return True
+        except Exception as e:
+            print("Fail fuera de index !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            return False
 
         return False
 
@@ -92,7 +96,7 @@ class Plotting:
     def plot_grid(self, name):
         self.fig, ax = plt.subplots()
 
-        plt.plot(self.xI[0], self.xI[1], "bs", linewidth=3)
+        plt.plot(self.xI[0], self.xI[1], "rs", linewidth=3)
         plt.plot(self.xG[0], self.xG[1], "gs", linewidth=3)
 
         plt.title(name)

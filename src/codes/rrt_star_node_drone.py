@@ -50,8 +50,9 @@ class RRT_ROS:
         self.real_goal = []
         self.path = []
         self.path_final = []
-
+        self.img = []
         self.img2 = []
+        self.img_debug = []
 
         self.path_pub = rospy.Publisher("/rrt/path_drone",Path, queue_size=1)
         self.path_image_pub = rospy.Publisher("/debug/image_path_drone",Image, queue_size=1)
@@ -88,7 +89,9 @@ class RRT_ROS:
             self.positionmap = [-self.x_start.x,-self.x_start.y]
             self.z=0
             cv_image = self.bridge.imgmsg_to_cv2(data, 'mono8')
+            self.img_debug = cv_image
             self.img = np.array(np.uint8(np.resize(cv_image, [self.height,self.width ])))
+
             self.robot_pose = np.array([0,0])
             self.img = (255-self.img)
 
@@ -168,12 +171,14 @@ class RRT_ROS:
         #print("callback_start")
 
     def callback_map_goal(self, data):
+        print("callback_map_goal")
         self.x_goal = Node([data.x, data.y])
         if self.img != []:
-            self.send_image_path(self.img)
+            self.send_image_path(self.img_debug)
         if self.path_final != []:
+
             self.send(self.path_final[::-1])
-        #print("callback_goal_map")
+            print("SENDING MAP!!!!!!!!!!!!!!!!!!!!1")
 
     def callback_map_start(self, data):
         self.x_start = Node([data.x, data.y])
@@ -182,7 +187,7 @@ class RRT_ROS:
     def send_image_path(self, path_image):
         self.rate.sleep()
         if self.path_final != []:
-            pts = path_final.reshape((-1, 1, 2))
+            pts = self.path_final.reshape((-1, 1, 2))
             isClosed = True
 
             # Blue color in BGR
@@ -191,13 +196,14 @@ class RRT_ROS:
             # Line thickness of 2 px
             thickness = 2
 
-            path_image = cv2.polylines(path_image, [pts], isClosed, color, thickness)
+            #path_image = cv2.polylines(path_image, [pts], isClosed, color, thickness)
+            path_image = path_image.astype(np.uint8)
+            path_image = self.bridge.cv2_to_imgmsg(path_image, "mono8")
 
-        image_message = self.bridge.cv2_to_imgmsg(path_image, "bgr8")
-        try:
-            self.path_image_pub.publish(image_message)
-        except rospy.ROSInterruptException as ros_e :
-            print(ros_e)
+            try:
+                self.path_image_pub.publish(path_image)
+            except rospy.ROSInterruptException as ros_e :
+                print(ros_e)
 
 
     def send(self, path):
@@ -206,13 +212,13 @@ class RRT_ROS:
         """
         self.rate.sleep()
         msg = Path()
-        msg.header.frame_id = "world"
+        msg.header.frame_id = "bebop/base_link"
         msg.header.stamp = rospy.Time.now()
         i=0
         for pos in path:
             pose = PoseStamped()
             pose.header.seq = i
-            pose.header.frame_id = "world"
+            pose.header.frame_id = "bebop/base_link"
             pose.header.stamp= rospy.Time.now()
             pose.pose.position.x = pos[0]
             pose.pose.position.y = pos[1]

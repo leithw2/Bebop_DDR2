@@ -41,7 +41,6 @@
   </node>
 
   <include file="$(find ddr)/launch/rtabmapodom.launch" />
-  <node pkg="codes" name="rrt_star_node_ddr" type="rrt_star_node_ddr.py" output="screen" />
   <node pkg="codes" name="DDR_control_3" type="DDR_control_3.py" output="screen" />
  
 <!--
