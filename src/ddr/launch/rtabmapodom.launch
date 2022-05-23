@@ -14,8 +14,8 @@
     </node>
 
     <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
-          <param name="frame_id" type="string" value="ddr/camera_link"/>
-          <param name="Rtabmap/DetectionRate" type="string" value="20"/>
+          <param name="frame_id" type="string" value="ddr/depth_camera"/>
+          <param name="Rtabmap/DetectionRate" type="string" value="30"/>
           <param name="subscribe_depth" type="bool" value="false"/>
           <param name="subscribe_rgbd" type="bool" value="true"/>
 
@@ -26,13 +26,21 @@
           <param name="queue_size" type="int" value="1"/>
 
           <!-- RTAB-Map's parameters -->
-          <param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
-          <param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
+
+
+	  <param name="proj_max_ground_height" value="0.1"/>
+	  <param name="RGBD/AngularUpdate"        type="string" value="0.001"/>
+          <param name="RGBD/AngularUpdate"        type="string" value="0.001"/>
+          <param name="RGBD/LinearUpdate"         type="string" value="0.001"/>
           <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
 	  <param name="Grid/CellSize"                   type="double"     value="0.05"/>
 
     </node>
   </group>
 
-<node pkg="tf" type="static_transform_publisher" name="camera_ddr_broadcaster" args=" 0 0 0.25 -1.57079632679 0 -1.57079632679 ddr/base_link ddr/camera_link 100"/>
+<node pkg="tf" type="static_transform_publisher" name="camera_ddr_broadcaster" args=" 0 0 -.05 -1.57079632679 0 -1.57079632679 ddr/base_link ddr/camera_link 100"/>
+<node pkg="tf" type="static_transform_publisher" name="depth_ddr_broadcaster" args=" 0 0 0 0 -1.57079632679 0 ddr/camera_link ddr/depth_camera 100"/>
+<!--
+rosrun tf static_transform_publisher 0 0 0 0 1.57079632679 0 ddr/camera_link ddr/depth_camera 10
+-->
 </launch>

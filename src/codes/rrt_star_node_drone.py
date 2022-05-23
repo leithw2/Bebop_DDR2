@@ -212,13 +212,13 @@ class RRT_ROS:
         """
         self.rate.sleep()
         msg = Path()
-        msg.header.frame_id = "bebop/base_link"
+        msg.header.frame_id = "map"
         msg.header.stamp = rospy.Time.now()
         i=0
         for pos in path:
             pose = PoseStamped()
             pose.header.seq = i
-            pose.header.frame_id = "bebop/base_link"
+            pose.header.frame_id = "map"
             pose.header.stamp= rospy.Time.now()
             pose.pose.position.x = pos[0]
             pose.pose.position.y = pos[1]

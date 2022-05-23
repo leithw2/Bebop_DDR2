@@ -14,7 +14,7 @@ from matplotlib import cm
 from scipy.misc import imread
 import random, sys, math, os
 from std_msgs.msg import String
-from geometry_msgs.msg import PoseArray, Point, Pose, PoseStamped
+from geometry_msgs.msg import PoseArray, Point, Pose, PoseStamped, PoseWithCovarianceStamped
 from sensor_msgs.msg import Image
 from nav_msgs.msg import OccupancyGrid, Path, Odometry
 from PIL import Image as im
@@ -43,7 +43,7 @@ class RRT_ROS:
         self.respix = 0.05
         self.bridge = CvBridge()
 
-        self.rrt_star = RrtStar((0,0), (0,0), 1500, 0.2, 200, 1000)
+        self.rrt_star = RrtStar((0,0), (0,0), 150, 0.2, 20, 2000)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.positionmap = [0,0]
@@ -61,6 +61,8 @@ class RRT_ROS:
 
         self.image_sub = rospy.Subscriber("/rtabmap/grid_map",OccupancyGrid, self.callback, queue_size=1, buff_size=1)
         #self.image_drone_sub = rospy.Subscriber("/bebop/image_map",Image, self.callback_image_drone, queue_size=1, buff_size=1)
+
+        self.poseWhitCovariance_sub = rospy.Subscriber("/rtabmap/localization_pose", PoseWithCovarianceStamped,self.poseWhitCovariance_callback)
         self.odom_sub = rospy.Subscriber("/roboto_diff_drive_controller/odom", Odometry,self.odometry_callback)
         self.goal_pose_sub= rospy.Subscriber('/goal/pose', Point, self.goal_pose_callback)
         self.path_sub = rospy.Subscriber("/rrt/path_drone", Path ,self.callback_drone_path)
@@ -120,15 +122,13 @@ class RRT_ROS:
                     robotToNode = self.rrt_star.utils.get_dist(self.x_start,node)
                     nodeToObject = self.rrt_star.utils.get_dist(node, self.object_target)
 
-                    if robotToNode < delta * 15 or robotToNode >= delta * 500 :
+                    if robotToNode < delta * 2 or robotToNode >= delta * 500 :
                         #print("node ", node.y, node.x)
                         #print("to short", robotToNode)
-                        pass
+                        continue
 
                     if (robotToNode + nodeToObject < min_dist):
                         min_dist = robotToNode + nodeToObject #if gray
-                        print(my_list1)
-                        print(node.x, node.y)
                         print("shortest",min_dist)
                         node_dist_min = node
 
@@ -179,7 +179,7 @@ class RRT_ROS:
             self.img = np.where(self.img == 100, 0, self.img)
 
             #print(self.img)
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
 
             self.img = cv2.erode(self.img,kernel,iterations = 1)
             #self.img = cv2.dilate(self.img,kernel,iterations = 1)
@@ -197,7 +197,7 @@ class RRT_ROS:
             self.wayPoints = []
             for pose in data.poses:
                 point = Node([(pose.pose.position.x - self.positionmap[0] )/self.respix,
-                 (pose.pose.position.y - self.positionmap[1])/self.respix])
+                 -(pose.pose.position.y - self.positionmap[1])/self.respix])
                 self.wayPoints.append(point)
 
             #print (self.wayPoints)
@@ -219,8 +219,8 @@ class RRT_ROS:
             self.rrt_star.env.x_range = self.rrt_star.x_range
             self.rrt_star.env.y_range = self.rrt_star.y_range
 
-            wayPoint_x = self.wayPoints[-1].x - self.positionmap[1]
-            wayPoint_y = self.wayPoints[-1].y - self.positionmap[0]
+            wayPoint_x = self.wayPoints[-1].x - self.positionmap[0]
+            wayPoint_y = self.wayPoints[-1].y - self.positionmap[1]
 
             if wayPoint_x >= self.width:
                 wayPoint_x = self.width-1
@@ -283,12 +283,10 @@ class RRT_ROS:
             print(self.x_start.x, self.x_start.y)
 
             self.neighborsToWhite(4, int(self.x_start.y), int(self.x_start.x))
-            #self.neighborsToWhite(2, int(self.object_target.x), int(self.object_target.y))
-            self.img[int(self.object_target.y)][int(self.object_target.x)] = 180
+            #self.neighborsToBlack(2, int(self.object_target.x), int(self.object_target.y))
+            #self.img[int(self.object_target.y)][int(self.object_target.x)] = 180
             self.img2 = cv2.cvtColor(self.img,cv2.COLOR_RGB2BGR)
-            plt.imshow(self.img2, cmap=cm.Greys_r)
-            plt.pause(1)
-            self.send_image_path(self.img2)
+
 
 
 
@@ -314,6 +312,7 @@ class RRT_ROS:
                     self.rrt_star.selectStartGoalPoints(self.x_start , self.x_goal )
                     path = self.rrt_star.planning()
 
+
                     if path is not None:
                         break
 
@@ -329,15 +328,16 @@ class RRT_ROS:
 
                 self.send(path[::-1])
 
-
-                # img2 = np.fromstring(self.rrt_star.plotting.fig.canvas.tostring_rgb(), dtype=np.uint8,
-                #       sep='')
+                # # Blue color in BGR
+                # color = (255, 0, 0)
                 #
-                # ncols, nrows = self.rrt_star.plotting.fig.canvas.get_width_height()
-                # img2  = img2.reshape(self.rrt_star.plotting.fig.canvas.get_width_height()[::-1] + (3,))
+                # # Line thickness of 2 px
+                # thickness = 2
                 #
-                #
-
+                # cv2.polylines(self.img2,path , False, color, thickness)
+                # plt.imshow(self.img2, cmap=cm.Greys_r)
+                # plt.pause(1)
+                self.send_image_path(self.img2)
 
                 return path
 
@@ -353,14 +353,29 @@ class RRT_ROS:
 
 
     def odometry_callback(self, data):
+        # pose = []
+        # self.actual_pose = data
+        #
+        # pose = self.example_function(data.pose.pose, 'map', 'odom')
+        #
+        # if pose is not None:
+        #     self.Odometry = True
+        #     pose = pose.pose.position
+        #     self.robot_pose = np.array([pose.y /self.respix, pose.x/self.respix])
+        #
+        # else:
+        #     self.Odometry = False
+        pass
+
+    def poseWhitCovariance_callback(self, data):
         pose = []
         self.actual_pose = data
 
-        pose = self.example_function(data.pose.pose, 'map', 'odom')
+        pose = data.pose.pose
 
         if pose is not None:
             self.Odometry = True
-            pose = pose.pose.position
+            pose = pose.position
             self.robot_pose = np.array([pose.y /self.respix, pose.x/self.respix])
 
         else:
@@ -386,13 +401,13 @@ class RRT_ROS:
         """
         msg = Path()
         msg.header.frame_id = "path"
-        msg.header.frame_id = "bebop/base_link"
+        msg.header.frame_id = "map"
         msg.header.stamp = rospy.Time.now()
         i=0
         for pos in path:
             pose = PoseStamped()
             pose.header.seq = i
-            pose.header.frame_id = "bebop/base_link"
+            pose.header.frame_id = "map"
             pose.header.stamp= rospy.Time.now()
             pose.pose.position.x = pos[0]
             pose.pose.position.y = pos[1]

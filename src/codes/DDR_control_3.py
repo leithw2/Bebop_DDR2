@@ -34,7 +34,7 @@ class controller():
         self.u = 0
         self.w = 0
         self.moveState = 0
-        self.stateMachine = 0
+        self.stateMachine = 1
         self.bebop_state = 0
         self.positions = []
         self.path = []
@@ -84,7 +84,7 @@ class controller():
         dist = numpy.linalg.norm(point - target)
         w = 0
         theta = np.arctan2(target[1] - self.pose.y , target[0]- self.pose.x)
-        vel = .1
+        vel = .5
 
         if dist <= 0.1:
             self.moveState = 2
@@ -119,7 +119,7 @@ class controller():
         dist = numpy.linalg.norm(point - target)
         w = 0
         u = 0
-        vel = .1
+        vel = .5
 
         if self.moveState == 2 and dist < 0.2:
             self.moveState = 0
@@ -153,6 +153,7 @@ class controller():
                 self.path.append(point)
 
             #print (self.positions)
+            self.path.pop(0)
             self.havePath = True
 
     # def drone_path_callback(self, data):
@@ -195,11 +196,11 @@ class controller():
         if self.stateMachine == 1: #following path
             if self.havePath:
                 self.positions = self.path
-                self.u = data.twist.twist.linear.x
-                self.w = data.twist.twist.angular.z
-                posestamped = self.tf_trasn(data.pose.pose, "map", "odom")
-                self.pose = posestamped.pose.position
-                orientation = posestamped.pose.orientation
+                #self.u = data.twist.twist.linear.x
+                #self.w = data.twist.twist.angular.z
+                #posestamped = self.tf_trasn(data.pose.pose, "map", "odom")
+                self.pose = data.pose.pose.position
+                orientation = data.pose.pose.orientation
                 r = [orientation.x,
                       orientation.y,
                       orientation.z,
@@ -209,6 +210,20 @@ class controller():
                 self.search_next(self.positions)
             else:
                 print("waiting for path.....")
+
+    def poseWhitCovariance_callback(self, data):
+        pose = []
+        self.actual_pose = data
+
+        pose = data.pose.pose
+        print(pose)
+        if pose is not None:
+            self.Odometry = True
+            pose = pose.position
+            self.robot_pose = np.array([pose.y /self.respix, pose.x/self.respix])
+
+        else:
+            self.Odometry = False
 
         # if self.stateMachine == 2: # Drone guided
         #     if self.haveDronePath:

@@ -7,8 +7,8 @@ import cv2
 
 MAP_IMG = './maze.jpg' # Black and white image for a map
 MIN_NUM_VERT = 20 # Minimum number of vertex in the graph
-MAX_NUM_VERT = 1500 # Maximum number of vertex in the graph
-STEP_DISTANCE = 30 # Maximum distance between two vertex
+MAX_NUM_VERT = 4000 # Maximum number of vertex in the graph
+STEP_DISTANCE = 100 # Maximum distance between two vertex
 SEED = None # For random numbers
 
 def rapidlyExploringRandomTree(ax, img, start, goal, seed=None):

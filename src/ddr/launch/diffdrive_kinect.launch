@@ -10,7 +10,7 @@
   <arg name="model" default="$(find ddr)/urdf/diffdrive_kinect.urdf.xacro"/>
 
   <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
-
+  
 <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="debug" value="$(arg debug)" />
@@ -40,10 +40,16 @@
     <param name="default_topic" value="/roboto_diff_drive_controller/cmd_vel"/>
   </node>
 
-  <include file="$(find ddr)/launch/rtabmapodom.launch" />
-  <node pkg="codes" name="DDR_control_3" type="DDR_control_3.py" output="screen" />
- 
+  
+  <node pkg="codes" name="DDR_control_4" type="DDR_control_4.py" output="screen" />
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="rviz" pkg="rviz" type="rviz" />
+
 <!--
+<node pkg="tf" type="static_transform_publisher" name="left_wheel_broadcaster" args=" 0 0 0 0 0 0 odom left_front_wheel 150"/>
+
+  <include file="$(find ddr)/launch/rtabmapodom.launch" />
   <node pkg="codes" name="rrt_star_node_ddr" type="rrt_star_node_ddr.py" output="screen" />
   <node pkg="codes" name="DDR_control_3" type="DDR_control_3.py" output="screen" />
 -->

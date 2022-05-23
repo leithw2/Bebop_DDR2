@@ -60,18 +60,18 @@ class Controller:
         ##############################
         self.set_stateMachine(1)
 
-        self.new_pos( 0, 0,4,0)
-        self.new_pos( 2,-2,4,0)
-        self.new_pos( 0,-2,4,0)
-        self.new_pos( 0,-4,4,0)
-        self.new_pos( 6, 0,4,0)
-        self.new_pos( 0,-6,4,0)
-        self.new_pos( 8,0,4,0)
-        self.new_pos( 0,-8,4,0)
-        self.new_pos( 8,-6,4,0)
-        self.new_pos( 6,-8,4,0)
+        # # self.new_pos( 0, 0,4,0)
+        # self.new_pos( 2,-2,4,0)
+        # self.new_pos( 0,-2,4,0)
+        # self.new_pos( 0,-4,4,0)
+        # self.new_pos( 6, 0,4,0)
+        # self.new_pos( 0,-6,4,0)
+        # self.new_pos( 8,0,4,0)
+        # self.new_pos( 0,-8,4,0)
+        # self.new_pos( 8,-6,4,0)
+        # self.new_pos( 6,-8,4,0)
         self.new_pos( 8,-8,4,0)
-        self.new_pos( 8, 0,4,0)
+        # self.new_pos( 8, 0,4,0)
 
 
         self.positions = self.positions[::-1]
@@ -229,7 +229,7 @@ class Controller:
                 self.tagReader(self.frame, 0)
                 if self.tracker(self.get_goal_tag_pose()):
                     self.set_goal_pose([self.get_actual_pose().position.x, self.get_actual_pose().position.y])
-                    self.set_stateMachine(4)
+                    ######self.set_stateMachine(4)
 
             if self.get_stateMachine() == 4: #goal found
                 #self.tagReader(self.frame)

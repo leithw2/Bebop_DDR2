@@ -116,17 +116,17 @@ class Plotting:
             for node in nodelist:
                 count += 1
                 if node.parent:
-                    #plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
-                    #plt.gcf().canvas.mpl_connect('key_release_event',
-                                                 #lambda event:
-                                                 #[exit(0) if event.key == 'escape' else None])
+                    splt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
+                    lt.gcf().canvas.mpl_connect('key_release_event',
+                                                 lambda event:
+                                                [exit(0) if event.key == 'escape' else None])
                     if count % 100 == 0:
                         #plt.pause(0.001)
                         pass
         else:
             for node in nodelist:
                 if node.parent:
-                    #plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
+                    plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")
                     pass
     @staticmethod
     def plot_visited_connect(V1, V2):
@@ -162,11 +162,11 @@ class Plotting:
 class Env:
     def __init__(self):
 
-        # img = imread(MAP_IMG, mode="L")
-        # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
-        # #img = cv2.dilate(img,kernel,iterations = 2)
-        # img = cv2.erode(img,kernel,iterations = 2)
-        self.img = []
+        img = imread(MAP_IMG, mode="L")
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+        #img = cv2.dilate(img,kernel,iterations = 2)
+        self.img = cv2.erode(img,kernel,iterations = 2)
+        # self.img = []
 
         self.x_range = (0, 50)
         self.y_range = (0, 30)
@@ -369,11 +369,11 @@ class RrtStar:
 
 
 def main():
-    x_start = (18, 8)  # Starting node
-    x_goal = (146, 31)  # Goal node
+    x_start = (8, 8)  # Starting node
+    x_goal = (10, 10)  # Goal node
 
 
-    rrt_star = RrtStar(x_start, x_goal, 10, 0.2, 200, 7000)
+    rrt_star = RrtStar(x_start, x_goal, 10, 0.2, 200, 2000)
     rrt_star.planning()
 
 
